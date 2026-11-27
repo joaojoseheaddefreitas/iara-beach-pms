@@ -25272,7 +25272,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
   window.IaraTotem = {
     CATS: CATS, cfg: cfg, setCfg: setCfg, list: list, linkQR: linkQR, url: urlTotem,
-    abrir: function () { window.open(urlTotem(), '_blank'); },
+    abrir: function () { var w = null; try { w = window.open(urlTotem(), '_blank'); } catch (e) {} if (!w) location.href = urlTotem(); },
     add: function (file, meta) {
       return reduzir(file).then(function (u) {
         return list().then(function (L) {
@@ -25876,9 +25876,9 @@ var tab=(function(){try{return parent.IaraPMS.tab0||'home'}catch(e){return'home'
 function go(t){tab=t;window.scrollTo(0,0);render()}
 var LBL={livre:'Livre',ocupado:'Ocupado',limpeza:'Limpeza',manut:'Manutenção'};
 function open_(r){return r.ch.filter(function(x){return!x.f})}
-function render(){sync();document.body.className=tab=='home'?'home':'';
+function render(){sync();document.body.className=tab=='home'?'home':'';try{var _x=document.getElementById('pms-x');if(tab=='home'){if(!_x){_x=document.createElement('button');_x.id='pms-x';_x.type='button';_x.textContent='✕ Fechar';_x.style.cssText='position:fixed;right:10px;top:10px;z-index:60;border:0;border-radius:999px;padding:10px 16px;background:#c9a24b;color:#1d2b26;font:700 14px system-ui;box-shadow:0 3px 10px #0006;cursor:pointer';_x.onclick=function(){try{parent.IaraPMS.close()}catch(e){}};document.body.appendChild(_x)}}else if(_x)_x.remove()}catch(e){}
 var nlead=newLeads(),nl=D.est.filter(function(x){return x.q<=x.m}).length,T=[['mapa','Mapa de Quartos'],['res','Reservas & Direto'],['du','Day Use & Experiências'],['gov','Café & Governança'],['est','Estoque Hotelaria'+(nl?' ⚠'+nl:'')],['cx','Caixa & Faturamento'],['rpc','RP, Empresas & CRM'+(nlead?' 🎯'+nlead:'')],['totem','Totem'],['cfg','Admin']];
-$('nav').style.display=(tab=='home')?'none':'flex';$('nav').innerHTML='<button class="bk" onclick="go(\'home\')">← Voltar para Capa</button>'+T.map(function(t){return'<button class="'+(t[0]==tab?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
+$('nav').style.display=(tab=='home')?'none':'flex';$('nav').innerHTML='<button class="bk" onclick="go(\'home\')">← Voltar para Capa</button><button class="bk" style="background:#fff;color:#0a3d30" onclick="try{parent.IaraPMS.close()}catch(e){}">✕ Fechar</button>'+T.map(function(t){return'<button class="'+(t[0]==tab?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
 $('app').innerHTML={home:vHome,mapa:vMapa,res:vRes,du:vDU,gov:vGov,est:vEst,cx:vCx,rpc:vRpc,rp:vRP,b2b:vB2B,crm:vCRM,totem:vTotem,cfg:vCfg,connect:vConnect,aval:vAval}[tab]();if(tab=='totem')ttLista();if(tab=='res')calc();if(tab=='cfg')cfgQr();if((tab=='crm'||tab=='rpc')&&!(tab=='rpc'&&rsub=='piloto'))evc();tick()}
 /* ---------- 1. MAPA ---------- */
 function vMapa(){var c={livre:0,ocupado:0,limpeza:0,manut:0};D.rooms.forEach(function(r){c[r.s]++});
@@ -28316,4 +28316,41 @@ el.addEventListener('click',function(e){var b=e.target.closest('[data-tour]');if
 var fab=document.getElementById('iara-pms-fab');if(fab)fab.style.display='none';
 upd()}
 ready(build)})();
+</script>
+
+<script id="cc-saida-universal">
+/* Saída/voltar para telas cheias: ?modo=totem · ?pms=totem · ?view=quartos · ?modo=reservar · ?totem=1 */
+(function(){
+  var Q=location.search,mode=null;
+  if(/[?&](modo|pms)=totem(&|$)/.test(Q))mode='kiosk';
+  else if(/[?&](view|modo)=quartos(&|$)/.test(Q))mode='quartos';
+  else if(/[?&]modo=reservar(&|$)/.test(Q))mode='reservar';
+  else if(/[?&]totem=1(&|$)/.test(Q))mode='mapa';
+  if(!mode)return;
+  function pinOk(){
+    var pin='2026';
+    try{pin=(JSON.parse(localStorage.getItem('solbahia_iara_pms_v1')||localStorage.getItem('iaraPMS1')).cfg||{}).pin||pin}catch(e){}
+    var r=prompt('PIN da recepção para sair');
+    return r!==null&&String(r)===String(pin);
+  }
+  function sair(){
+    if(mode==='kiosk'||mode==='mapa'){if(!pinOk())return}
+    try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
+    if(mode!=='kiosk'&&mode!=='mapa'&&history.length>1){history.back();return}
+    try{window.close()}catch(e){}
+    setTimeout(function(){location.href=location.pathname},250);
+  }
+  function mk(){
+    if(document.getElementById('cc-sair-modo')||!document.body)return;
+    var b=document.createElement('button');
+    b.id='cc-sair-modo';b.type='button';
+    b.textContent=(mode==='kiosk'||mode==='mapa')?'✕ Sair':'← Voltar';
+    b.style.cssText='position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483647;border:2px solid #c9a24b;background:rgba(10,61,48,.92);color:#fff;border-radius:999px;padding:11px 18px;font:700 15px system-ui,sans-serif;box-shadow:0 4px 14px #0007;cursor:pointer;touch-action:manipulation';
+    b.addEventListener('click',function(e){e.stopPropagation();sair()});
+    document.body.appendChild(b);
+  }
+  function loop(){try{mk()}catch(e){}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loop);else loop();
+  setInterval(loop,1500);
+})();
 </script>

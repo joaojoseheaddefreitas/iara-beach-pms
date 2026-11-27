@@ -26526,7 +26526,13 @@ function qr(el,url){
 }
 function tela(v){
   var f=v.requestFullscreen||v.webkitRequestFullscreen;
-  try{ if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)} else if(f){f.call(v)} }catch(e){}
+  var pseudo=function(){v.classList.add('tm-pseudo')};
+  try{
+    if(document.fullscreenElement||document.webkitFullscreenElement){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}
+    else if(v.classList.contains('tm-pseudo')){v.classList.remove('tm-pseudo')}
+    else if(f){var p=f.call(v);if(p&&p.catch)p.catch(pseudo)}
+    else pseudo();
+  }catch(e){pseudo()}
 }
 function criar(id){
   var v=document.getElementById(id);if(v)return v;
@@ -28349,8 +28355,67 @@ ready(build)})();
     b.addEventListener('click',function(e){e.stopPropagation();sair()});
     document.body.appendChild(b);
   }
-  function loop(){try{mk()}catch(e){}}
+  /* Em tela cheia nativa só aparece o que está DENTRO do elemento em tela cheia; por isso o botão
+     acompanha o elemento (e volta ao body quando a tela cheia termina). */
+  function fsEl(){return document.fullscreenElement||document.webkitFullscreenElement||null}
+  function place(){var b=document.getElementById('cc-sair-modo');if(!b)return;var h=fsEl()||document.body;if(b.parentNode!==h)h.appendChild(b)}
+  ['fullscreenchange','webkitfullscreenchange'].forEach(function(ev){document.addEventListener(ev,function(){try{place()}catch(e){}})});
+  function loop(){try{mk();place()}catch(e){}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loop);else loop();
   setInterval(loop,1500);
+})();
+</script>
+
+<style id="cc-totem-sair-css">
+/* Controles de saída das abas Totem: ficam DENTRO da view, por isso aparecem também em tela cheia */
+.tm-sair{display:none;position:fixed;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147483647;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 24px);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.tm-sair button{border:2px solid #d4af37;background:#d4af37;color:#04180f;border-radius:999px;padding:11px 18px;font:800 .9rem system-ui,-apple-system,Segoe UI,sans-serif;cursor:pointer;touch-action:manipulation;box-shadow:0 4px 16px rgba(0,0,0,.55)}
+.tm-sair button[data-tm-sair="sair"]{background:rgba(4,24,15,.92);color:#f4ecd2}
+#view-totem-cardapio:fullscreen .tm-sair,#view-totem-hotelaria:fullscreen .tm-sair{display:flex}
+#view-totem-cardapio:-webkit-full-screen .tm-sair,#view-totem-hotelaria:-webkit-full-screen .tm-sair{display:flex}
+#view-totem-cardapio.tm-pseudo .tm-sair,#view-totem-hotelaria.tm-pseudo .tm-sair{display:flex}
+/* tela cheia "de reserva" (iPhone/iPad e navegadores sem a API nativa) */
+.tm-pseudo{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;z-index:2147483200!important;overflow:auto!important;padding-bottom:24px!important}
+</style>
+<script id="cc-totem-sair">
+(function(){
+  'use strict';
+  var IDS=['view-totem-cardapio','view-totem-hotelaria'];
+  function fsEl(){return document.fullscreenElement||document.webkitFullscreenElement||null}
+  function sairTela(){
+    try{ if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document)} }catch(e){}
+    IDS.forEach(function(id){var v=document.getElementById(id);if(v)v.classList.remove('tm-pseudo')});
+  }
+  function voltarPainel(){
+    var btn=document.getElementById('cc-btn-voltar-painel');
+    try{ if(btn){btn.click();return} }catch(e){}
+    try{ if(typeof window.ccVoltarParaCapaPremium==='function')window.ccVoltarParaCapaPremium() }catch(e){}
+  }
+  function garantir(){
+    IDS.forEach(function(id){
+      var v=document.getElementById(id);
+      if(!v||v.querySelector('.tm-sair'))return;
+      var d=document.createElement('div');d.className='tm-sair';
+      d.innerHTML='<button type="button" data-tm-sair="voltar">← Voltar ao painel</button><button type="button" data-tm-sair="sair">✕ Sair da tela cheia</button>';
+      v.appendChild(d);
+    });
+  }
+  function rotulos(){
+    var cheia=!!fsEl()||!!document.querySelector('.tm-pseudo');
+    var b=document.querySelector('#view-totem-cardapio [data-tm="c-full"]');
+    if(b)b.textContent=cheia?'✕ Sair da tela cheia':'⛶ Tela cheia';
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest&&e.target.closest('[data-tm-sair]');if(!b)return;
+    e.preventDefault();e.stopPropagation();
+    var voltar=b.getAttribute('data-tm-sair')==='voltar';
+    sairTela();
+    if(voltar)setTimeout(voltarPainel,150);
+    setTimeout(rotulos,50);
+  },true);
+  ['fullscreenchange','webkitfullscreenchange'].forEach(function(ev){document.addEventListener(ev,rotulos)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.querySelector('.tm-pseudo')){sairTela();rotulos()}});
+  function boot(){garantir();setInterval(function(){try{garantir();rotulos()}catch(e){}},800)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>

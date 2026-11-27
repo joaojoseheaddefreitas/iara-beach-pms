@@ -25465,6 +25465,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .vt-sp{display:flex;align-items:center;gap:.6em;margin:.4em 0}.vt-sp span{flex:1;font-weight:700}.vt-sp button{width:2.2em;height:2.2em;border-radius:.6em;border:1px solid #0b2545;background:#fff;font:inherit;font-weight:800;cursor:pointer}
 .vt-sum{background:#0b2545;color:#f4ecd6;border-radius:.8em;padding:.7em;margin:.7em 0}.vt-sum div{display:flex;justify-content:space-between;gap:.5em;margin:.2em 0;font-size:.9em}.vt-sum .t{font-size:1.15em;font-weight:800;color:#e8cf7a;border-top:1px solid #ffffff44;padding-top:.4em}
 .vt-x{position:absolute;right:.5em;top:.5em;border:0;background:#0b2545;color:#fff;border-radius:50%;width:2em;height:2em;cursor:pointer}
+#vt-lb{position:absolute;inset:0;z-index:20;background:#000e;display:flex;overflow:auto}#vt-lb img{margin:auto;max-width:100%;max-height:100%;object-fit:contain}#vt-lb img.z{max-width:none;max-height:none;width:220%}.vt-lx,.vt-ln,.vt-lr{position:fixed;border:0;background:#0b2545cc;color:#fff;border-radius:50%;width:2.6em;height:2.6em;font-size:1em;cursor:pointer;z-index:21}.vt-lx{right:.8em;top:.8em}.vt-ln{left:.6em;top:50%}.vt-lr{right:.6em;top:50%}.vt-lc{position:fixed;bottom:.8em;left:0;right:0;text-align:center;font-size:.8em;color:#f4ecd6;z-index:21;pointer-events:none}
 .vt-er{color:#b42318;font-size:.85em;min-height:1.2em;margin:.3em 0}.vt-pq{display:block;width:min(15em,70%);margin:.5em auto}
 </style>
 <script id="iara-totem-vitrine">
@@ -25543,7 +25544,7 @@ function body() {
   h += '<div class="vt-cn"><span class="g">🟢 LIVRES <b>' + L + '</b></span><span class="r">🔴 OCUPADOS <b>' + O + '</b></span>' + (U ? '<span>⚪ A CONSULTAR <b>' + U + '</b></span>' : '') + '<small>' + (EST ? 'Atualizado em tempo real' : 'Status indisponível agora: a recepção confirma a disponibilidade') + '</small></div>';
   h += '<h2>Categorias e diárias</h2><div class="vt-cats">' + K.map(function (k) {
     var t = T[k], f = foto(k)[0], n = Rs.filter(function (r) { return r.t === k && sit(r.n) === 'livre'; }).length;
-    return '<div class="vt-cat"><div class="vt-im" style="background-image:url(\'' + (f ? f.u : '') + '\')"></div><b>' + esc(N[k].pt) + '</b><small>' + esc(t.a) + ' · ' + esc(t.v) + '</small><div class="vt-pr"><s>' + $m(t.p) + '</s> <strong>' + $m(t.p * (1 - DESC)) + '</strong><small> / noite direto</small></div><button class="vt-b2" data-cat="' + k + '" data-sc="1">' + n + ' livre' + (n === 1 ? '' : 's') + ' · ver</button></div>';
+    return '<div class="vt-cat"><div class="vt-im" data-ph="' + k + ':0" style="background-image:url(\'' + (f ? f.u : '') + '\')"></div><b>' + esc(N[k].pt) + '</b><small>' + esc(t.a) + ' · ' + esc(t.v) + '</small><div class="vt-pr"><s>' + $m(t.p) + '</s> <strong>' + $m(t.p * (1 - DESC)) + '</strong><small> / noite direto</small></div><button class="vt-b2" data-tour="' + k + '">🔭 Tour 360°</button><button class="vt-b2" data-cat="' + k + '" data-sc="1">' + n + ' livre' + (n === 1 ? '' : 's') + ' · ver</button></div>';
   }).join('') + '</div><p style="font-size:.8em;opacity:.75">Diária para 2 adultos, sem impostos. Riscado = tarifa de portais; o valor direto já tem 15% de vantagem.</p>';
   h += '<h2>Mapa dos apartamentos</h2><div class="vt-map">' + Rs.map(function (r) { return '<button class="vt-t ' + sit(r.n) + '" data-go="' + r.n + '"><b>' + r.n + '</b><i>' + esc(N[r.t].pt.split(' ')[0]) + '</i></button>'; }).join('') + '</div>';
   h += '<h2 id="vt-rooms">Apartamentos</h2><div class="vt-fl"><button data-liv="1" class="' + (F.liv ? 'on' : '') + '">🟢 Só livres</button><button data-cat="all" class="' + (F.cat === 'all' ? 'on' : '') + '">Todos</button>' + K.map(function (k) { return '<button data-cat="' + k + '" class="' + (F.cat === k ? 'on' : '') + '">' + esc(N[k].pt) + '</button>'; }).join('') + '</div><div class="vt-rooms">';
@@ -25551,8 +25552,8 @@ function body() {
     .sort(function (a, b) { return (sit(a.n) === 'ocup' ? 1 : 0) - (sit(b.n) === 'ocup' ? 1 : 0); })
     .forEach(function (r) {
       var s = sit(r.n), t = T[r.t];
-      h += '<article class="vt-room ' + s + '" id="vt-r-' + r.n + '"><div class="vt-ph">' + foto(r.t).map(function (f) { return '<img loading="lazy" src="' + f.u + '" alt="">'; }).join('') + '</div>' +
-        '<div class="vt-rt"><b>Apto ' + r.n + '</b><span class="vt-bd">' + (s === 'livre' ? '🟢 LIVRE' : s === 'ocup' ? '🔴 OCUPADO' : '⚪ CONSULTAR') + '</span></div>' +
+      h += '<article class="vt-room ' + s + '" id="vt-r-' + r.n + '"><div class="vt-ph">' + foto(r.t).map(function (f, i) { return '<img loading="lazy" data-ph="' + r.t + ':' + i + '" src="' + f.u + '" alt="">'; }).join('') + '</div>' +
+        '<button class="vt-b2" data-tour="' + r.t + '">🔭 Tour 360° · toque nas fotos para ampliar</button><div class="vt-rt"><b>Apto ' + r.n + '</b><span class="vt-bd">' + (s === 'livre' ? '🟢 LIVRE' : s === 'ocup' ? '🔴 OCUPADO' : '⚪ CONSULTAR') + '</span></div>' +
         '<small>' + esc(N[r.t].pt) + ' · ' + esc(t.a) + ' · ' + esc(t.v) + ' · ' + r.f + '</small>' +
         '<div class="vt-pr"><s>' + $m(t.p) + '</s> <strong>' + $m(t.p * (1 - DESC)) + '</strong><small> / noite</small></div>' +
         (s === 'ocup' ? '<button class="vt-go off" disabled>🔴 Ocupado</button>' : '<button class="vt-go" data-res="' + r.n + '">🛎️ ' + (s === 'livre' ? 'QUERO RESERVAR AGORA' : 'QUERO RESERVAR · CONSULTAR') + '</button>') + '</article>';
@@ -25562,20 +25563,28 @@ function body() {
   if (pr.length) h += '<div class="vt-pm">' + pr.map(function (p) { return '<div>🎁 <b>' + esc(p.t) + '</b> · ' + esc(p.q) + ' — ' + esc(p.d) + '</div>'; }).join('') + '</div>';
   return h;
 }
+/* ── fotos ampliadas (zoom) e Tour 360° ── */
+function caixa(ph) {
+  var a = ph.split(':'), L = foto(a[0]), i = +a[1], z = 0, o = document.createElement('div'); if (!L.length) return; o.id = 'vt-lb';
+  function d() { o.innerHTML = '<img src="' + L[i].u + '" class="' + (z ? 'z' : '') + '" alt=""><button class="vt-lx" data-lx="x">✕</button>' + (L.length > 1 ? '<button class="vt-ln" data-lx="p">‹</button><button class="vt-lr" data-lx="n">›</button>' : '') + '<div class="vt-lc">' + (i + 1) + '/' + L.length + ' · toque na foto para dar zoom</div>'; }
+  o.addEventListener('click', function (e) { var t = e.target; last = Date.now(); if (t.dataset.lx === 'x') o.remove(); else if (t.dataset.lx === 'p') { i = (i + L.length - 1) % L.length; z = 0; d(); } else if (t.dataset.lx === 'n') { i = (i + 1) % L.length; z = 0; d(); } else if (t.tagName === 'IMG') { z = z ? 0 : 1; d(); } });
+  d(); root.appendChild(o);
+}
+function tour(t) { try { H.tour(t); } catch (e) { return; } var o = document.querySelector('.ht-tour'); if (o) { o.style.setProperty('z-index', '2147483647', 'important'); o.style.setProperty('display', 'flex', 'important'); } }
 /* ── reserva ── */
 function calc() {
   var t = H.TIPOS[R.t], pes = R.ad + R.cr, x = Math.max(0, R.ad - 2) * ACOMP.ad + R.cr * ACOMP.cr, dia = r2(t.p * (1 - DESC)),
     ex = PAC.filter(function (p) { return R.ex[p.id]; }).map(function (p) { return { n: p.n, v: p.p * (p.u === 'pessoa' ? pes : 1) }; }),
     ev = ex.reduce(function (a, e) { return a + e.v; }, 0), hosp = r2(R.no * (dia + x)), tot = r2(hosp + ev), sin = r2(tot * pct() / 100);
-  return { t: t, x: x, dia: dia, ota: r2(R.no * (t.p + x)), hosp: hosp, ex: ex, tot: tot, sin: sin, pagar: R.pg === 'total' ? tot : sin, co: addD(R.ci, R.no) };
+  return { t: t, x: x, dia: dia, ota: r2(R.no * (t.p + x)), hosp: hosp, ex: ex, tot: tot, sin: sin, pagar: R.pg === 'nenhum' ? 0 : R.pg === 'total' ? tot : sin, co: addD(R.ci, R.no) };
 }
-function reservar(n) { var r = quartos().filter(function (x) { return x.n === n; })[0]; if (!r) return; R = { n: n, t: r.t, ci: iso(new Date()), no: 1, ad: 2, cr: 0, ex: {}, pg: 'sinal', nm: '', tl: '' }; modal(); }
+function reservar(n) { var r = quartos().filter(function (x) { return x.n === n; })[0]; if (!r) return; R = { n: n, t: r.t, ci: iso(new Date()), no: 1, ad: 2, cr: 0, ex: {}, pg: 'nenhum', nm: '', tl: '' }; modal(); }
 function ov() { var o = document.getElementById('vt-ov'); if (!o) { o = document.createElement('div'); o.id = 'vt-ov'; root.appendChild(o); o.addEventListener('click', mclick); o.addEventListener('input', minput); } return o; }
 function step(k, l, v) { return '<div class="vt-sp"><span>' + l + '</span><button data-st="' + k + ':-1">−</button><b>' + v + '</b><button data-st="' + k + ':1">+</button></div>'; }
 function sumH(c) {
   return '<div><span>' + R.no + ' diária' + (R.no > 1 ? 's' : '') + ' (' + fdt(R.ci) + ' → ' + fdt(c.co) + ')</span><span>' + $m(c.hosp) + '</span></div>' +
     (c.x ? '<div><span>Acompanhantes extras / noite</span><span>' + $m(c.x) + '</span></div>' : '') + c.ex.map(function (e) { return '<div><span>' + esc(e.n) + '</span><span>' + $m(e.v) + '</span></div>'; }).join('') +
-    '<div class="t"><span>Total</span><span>' + $m(c.tot) + '</span></div><div><span>Pagar agora via PIX</span><b>' + $m(c.pagar) + '</b></div>';
+    '<div class="t"><span>Total</span><span>' + $m(c.tot) + '</span></div><div><span>Pagar agora via PIX</span><b>' + (c.pagar ? $m(c.pagar) : 'nada agora') + '</b></div>';
 }
 function modal() {
   var c = calc(), o = ov(), t = c.t, today = iso(new Date());
@@ -25583,8 +25592,8 @@ function modal() {
     '<label for="vt-ci">Check-in</label><input type="date" id="vt-ci" min="' + today + '" value="' + R.ci + '">' + step('no', 'Diárias (check-out ' + fdt(c.co) + ')', R.no) + step('ad', 'Adultos (2 incluídos)', R.ad) + step('cr', 'Crianças', R.cr) +
     '<div class="vt-ex">' + PAC.map(function (p) { return '<label><input type="checkbox" data-ex="' + p.id + '"' + (R.ex[p.id] ? ' checked' : '') + '> ' + p.ic + ' ' + esc(p.n) + ' <b>' + $m(p.p) + '/' + p.u + '</b></label>'; }).join('') + '</div>' +
     '<label for="vt-nm">Nome completo</label><input type="text" id="vt-nm" autocomplete="name" value="' + esc(R.nm) + '"><label for="vt-tl">WhatsApp (com DDD)</label><input type="tel" id="vt-tl" inputmode="tel" value="' + esc(R.tl) + '">' +
-    '<div class="vt-sum" id="vt-sum">' + sumH(c) + '</div><div class="vt-pg"><label><input type="radio" name="pg" value="sinal"' + (R.pg === 'sinal' ? ' checked' : '') + '> Sinal de ' + pct() + '% (' + $m(c.sin) + ')</label><label><input type="radio" name="pg" value="total"' + (R.pg === 'total' ? ' checked' : '') + '> Pagar o total (' + $m(c.tot) + ')</label></div>' +
-    '<div class="vt-er" id="vt-er"></div><button class="vt-go" data-ok="1">💳 Reservar e gerar PIX</button></div>';
+    '<div class="vt-sum" id="vt-sum">' + sumH(c) + '</div><div class="vt-pg"><label><input type="radio" name="pg" value="nenhum"' + (R.pg === 'nenhum' ? ' checked' : '') + '> Só reservar agora (pagamento combinado com a recepção)</label><label><input type="radio" name="pg" value="sinal"' + (R.pg === 'sinal' ? ' checked' : '') + '> Sinal de ' + pct() + '% (' + $m(c.sin) + ')</label><label><input type="radio" name="pg" value="total"' + (R.pg === 'total' ? ' checked' : '') + '> Pagar o total (' + $m(c.tot) + ')</label></div>' +
+    '<div class="vt-er" id="vt-er"></div><button class="vt-go" data-ok="1">' + (R.pg === 'nenhum' ? '🛎️ FAZER MINHA RESERVA' : '💳 Reservar e gerar PIX') + '</button></div>';
 }
 function minput(e) {
   var t = e.target; last = Date.now();
@@ -25615,6 +25624,7 @@ function enviar() {
   if (tl.length < 10) return (E.textContent = 'Informe o WhatsApp com DDD.');
   var l = { id: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), ts: Date.now(), st: 'novo', tq: 0, nome: R.nm.trim(), tel: tl, cat: H.NOMES[R.t].pt, catk: R.t, quarto: R.n, ci: R.ci, co: c.co, noites: R.no, adultos: R.ad, criancas: R.cr, extras: c.ex.map(function (e) { return e.n; }), ota: c.ota, direto: c.tot, eco: r2(c.ota - c.hosp), sinal: c.sin, pagar: c.pagar, origem: 'totem', pago: false };
   lead(l);
+  if (!c.pagar) return fim(l, c, null, '');
   var md = ov().firstChild; md.innerHTML = '<h3>⏳ Gerando seu PIX…</h3><p>A recepção já foi avisada da sua reserva.</p>';
   var oid = 'reserva-apto' + R.n + '-' + Date.now(), n = R.n;
   fetch((C.paymentsApiBase || '') + '/payments/process', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-empresa-id': EMP }, body: JSON.stringify({ provider: 'mercadopago', serialNumber: 'totem-reservas', tipoPagamento: 'pix', orderData: { orderId: oid, numeroMesa: 'Q' + n, valorTotal: c.pagar, itensPedido: [{ nome: 'Reserva Apto ' + n + ' · ' + l.cat + ' (' + l.noites + ' diária' + (l.noites > 1 ? 's' : '') + ')', quantidade: 1, preco: c.pagar }] } }) })
@@ -25623,10 +25633,10 @@ function enviar() {
 }
 function fim(l, c, pix, oid) {
   var num = String((H.txt && H.txt().whats) || '').replace(/\D/g, ''); if (num.length <= 11) num = '55' + num;
-  var msg = 'Olá! Reserva pelo Totem 🌴\nApto ' + l.quarto + ' · ' + l.cat + '\n👤 ' + l.nome + '\n📅 ' + fdt(l.ci) + ' → ' + fdt(l.co) + ' (' + l.noites + ' diária' + (l.noites > 1 ? 's' : '') + ')\n👥 ' + l.adultos + ' adulto(s)' + (l.criancas ? ' + ' + l.criancas + ' criança(s)' : '') + (l.extras.length ? '\n✨ ' + l.extras.join(', ') : '') + '\n💰 Total ' + $m(c.tot) + ' · PIX ' + $m(c.pagar) + '\nRef. ' + l.id;
+  var msg = 'Olá! Reserva pelo Totem 🌴\nApto ' + l.quarto + ' · ' + l.cat + '\n👤 ' + l.nome + '\n📅 ' + fdt(l.ci) + ' → ' + fdt(l.co) + ' (' + l.noites + ' diária' + (l.noites > 1 ? 's' : '') + ')\n👥 ' + l.adultos + ' adulto(s)' + (l.criancas ? ' + ' + l.criancas + ' criança(s)' : '') + (l.extras.length ? '\n✨ ' + l.extras.join(', ') : '') + '\n💰 Total ' + $m(c.tot) + (c.pagar ? ' · PIX ' + $m(c.pagar) : ' · sem pagamento antecipado') + '\nRef. ' + l.id;
   var cp = pix && (pix.qrCode || pix.copiaECola || pix.copia_e_cola || ''), md = ov().firstChild;
   md.innerHTML = '<h3>✅ Reserva registrada · Apto ' + esc(l.quarto) + '</h3><p class="s">A recepção foi avisada agora.</p>' +
-    (pix && pix.qrCodeBase64 ? '<img class="vt-pq" alt="PIX" src="data:image/png;base64,' + pix.qrCodeBase64 + '">' + (cp ? '<textarea readonly rows="3">' + esc(cp) + '</textarea>' : '') + '<p><b>PIX de ' + $m(c.pagar) + '</b> · <span id="vt-pg">⏳ aguardando pagamento…</span></p>' : '<p>Não foi possível gerar o PIX agora. A recepção envia a chave pelo WhatsApp.</p>') +
+    (pix && pix.qrCodeBase64 ? '<img class="vt-pq" alt="PIX" src="data:image/png;base64,' + pix.qrCodeBase64 + '">' + (cp ? '<textarea readonly rows="3">' + esc(cp) + '</textarea>' : '') + '<p><b>PIX de ' + $m(c.pagar) + '</b> · <span id="vt-pg">⏳ aguardando pagamento…</span></p>' : '<p>' + (c.pagar ? 'Não foi possível gerar o PIX agora. A recepção envia a chave pelo WhatsApp.' : 'A recepção vai confirmar sua reserva pelo WhatsApp e combinar o pagamento.') + '</p>') +
     '<a class="vt-go" target="_blank" rel="noopener" href="https://wa.me/' + num + '?text=' + encodeURIComponent(msg) + '">📲 Falar com a recepção no WhatsApp</a><div style="height:.5em"></div><button class="vt-go off" data-x="1" style="cursor:pointer">Fechar</button>';
   if (!(pix && pix.qrCodeBase64)) return;
   R.fim = 1; var iv = setInterval(function () {
@@ -25658,7 +25668,8 @@ function boot(n) {
   root.innerHTML = '<div class="vt-main" id="vt-main"></div>' + (KIOSK ? '<aside class="vt-side"><canvas id="vt-qr"></canvas><b>Toque num apartamento 🟢 ou aponte a câmera</b></aside><div id="vt-exit"></div>' : '');
   document.body.appendChild(root); document.body.style.overflow = 'hidden'; main = document.getElementById('vt-main');
   main.addEventListener('click', function (e) {
-    last = Date.now(); var t = e.target.closest('[data-res],[data-cat],[data-liv],[data-go]'); if (!t) return;
+    last = Date.now(); var t = e.target.closest('[data-res],[data-cat],[data-liv],[data-go],[data-ph],[data-tour]'); if (!t) return;
+    if (t.dataset.ph) return caixa(t.dataset.ph); if (t.dataset.tour) return tour(t.dataset.tour);
     if (t.dataset.res) return reservar(t.dataset.res);
     if (t.dataset.liv) F.liv = F.liv ? 0 : 1; else if (t.dataset.cat) { F.cat = t.dataset.cat; if (t.dataset.sc) F.liv = 1; }
     if (t.dataset.go) { var el = document.getElementById('vt-r-' + t.dataset.go); if (el) { if (F.cat !== 'all' || F.liv) { F.cat = 'all'; F.liv = 0; paint(); el = document.getElementById('vt-r-' + t.dataset.go); } el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('hl'); setTimeout(function () { el.classList.remove('hl'); }, 2500); } return; }

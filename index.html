@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script id="iara-totem-flash">(function(){try{if(/[?&](modo|pms)=totem(&|$)/.test(location.search)){document.documentElement.className+=" iara-totem-mode";var s=document.createElement("style");s.textContent="html.iara-totem-mode body>*:not(#iara-totem){display:none!important}html.iara-totem-mode,html.iara-totem-mode body{background:#04180f!important;overflow:hidden!important}";document.head.appendChild(s)}}catch(e){}})();</script>
+<script id="iara-totem-flash">(function(){try{if(/[?&](modo|pms)=totem(&|$)|[?&](view|modo)=quartos(&|$)/.test(location.search)){document.documentElement.className+=" iara-totem-mode";var s=document.createElement("style");s.textContent="html.iara-totem-mode body>*:not(#iara-totem){display:none!important}html.iara-totem-mode,html.iara-totem-mode body{background:#04180f!important;overflow:hidden!important}";document.head.appendChild(s)}}catch(e){}})();</script>
 <script id="cc-restaurar-sessao-tap">
 /* Tap to Pay: ao voltar do app da InfinitePay o navegador pode abrir a página "do zero" e perder nome/turno do garçom.
    Este bloco roda ANTES de qualquer outro script e devolve só o que SUMIU (nunca sobrescreve o que já existe).
@@ -416,7 +416,7 @@ window.COOKCONTROL_CONFIG = {
   (function(){
     try {
       var st = document.createElement("style");
-      st.textContent = "html.cc-carregando body > *:not(#cc-nuvem-gate){visibility:hidden!important}";
+      st.textContent = "html.cc-carregando body > *:not(#cc-nuvem-gate):not(#iara-totem){visibility:hidden!important}";
       document.head.appendChild(st);
       document.documentElement.classList.add("cc-carregando");
       document.addEventListener("DOMContentLoaded", function(){
@@ -25267,7 +25267,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function setCfg(p) { var c = Object.assign(cfg(), p); try { localStorage.setItem(CK, JSON.stringify(c)); } catch (e) {} return c; }
 
   function site() { try { return window.ccOrigemSite(); } catch (e) { return location.origin; } }
-  function linkQR() { return cfg().link || (site() + '/?role=cliente'); }
+  function linkQR() { var l = cfg().link; if (l && !/[?&](role=cliente|mesa=|view=delivery)/.test(l)) return l; return site() + '/?view=quartos'; }
   function urlTotem() { return site() + '/?modo=totem'; }
 
   window.IaraTotem = {
@@ -25418,10 +25418,270 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     window.addEventListener('load', function () { setTimeout(desenharQR, 800); });
   }
 
-  if (modoTotem()) {
+  if (false && modoTotem()) {   /* legado: slideshow substituído pela Vitrine de Quartos (script iara-totem-vitrine) */
     if (document.readyState === 'complete') setTimeout(iniciar, 300);
     else window.addEventListener('load', function () { setTimeout(iniciar, 300); });
   }
+})();
+</script>
+<style id="iara-totem-vitrine-css">
+#iara-totem{position:fixed;inset:0;z-index:2147483647;background:#071a33;color:#f4ecd6;font-family:Georgia,"Times New Roman",serif;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
+#iara-totem *{box-sizing:border-box}
+#iara-totem.vt-mobile{font-size:16px}
+#iara-totem.vt-kiosk{font-size:clamp(14px,1.9vmin,28px);grid-template-columns:1fr min(36vmin,34vw)}
+.vt-main{overflow:auto;padding:1em 1.1em 4em;min-height:0;-webkit-overflow-scrolling:touch}
+.vt-side{background:#0b2545;border-left:.2em solid #c9a24b;padding:1em;display:flex;flex-direction:column;gap:.7em;align-items:center;justify-content:center;text-align:center}
+.vt-side canvas{width:100%;height:auto;border-radius:1em}
+.vt-side b{font-size:1.1em;color:#e8cf7a}
+#vt-exit{position:absolute;left:0;top:0;width:80px;height:80px;z-index:5}
+@media(orientation:portrait){#iara-totem.vt-kiosk{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}.vt-side{flex-direction:row;border-left:0;border-top:.2em solid #c9a24b}.vt-side canvas{width:32vmin}}
+.vt-h{display:flex;align-items:center;gap:.8em;border-bottom:.15em solid #c9a24b;padding-bottom:.7em}
+.vt-h img{width:4.4em;height:4.4em;object-fit:contain}.vt-h h1{margin:0;font-size:1.6em;color:#e8cf7a}.vt-h p{margin:.2em 0 0;opacity:.85;font-size:.9em}
+.vt-cn{display:flex;flex-wrap:wrap;gap:.6em;align-items:center;margin:.8em 0}.vt-cn span{padding:.4em .9em;border-radius:99px;background:#12315c;font-weight:700}.vt-cn .g{background:#0f7a55}.vt-cn .r{background:#a53030}.vt-cn small{opacity:.8}
+#iara-totem h2{font-size:1.25em;color:#e8cf7a;margin:1.2em 0 .5em}
+.vt-cats,.vt-rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(15em,1fr));gap:.8em}
+.vt-cat,.vt-room{background:#0e2a50;border:.12em solid #c9a24b66;border-radius:1em;padding:.7em;display:flex;flex-direction:column;gap:.35em}
+.vt-cat small,.vt-room small{opacity:.8}.vt-im{height:8em;border-radius:.7em;background:#0b2545 center/cover}
+.vt-pr s{opacity:.6}.vt-pr strong{color:#e8cf7a;font-size:1.2em}
+.vt-b2,.vt-fl button{border:.1em solid #c9a24b;background:transparent;color:#e8cf7a;border-radius:99px;padding:.5em 1em;font:inherit;font-weight:700;cursor:pointer}
+.vt-fl{display:flex;flex-wrap:wrap;gap:.5em;margin:.9em 0 .4em}.vt-fl button.on{background:#c9a24b;color:#0b2545}
+.vt-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.2em,1fr));gap:.4em}
+.vt-t{border:.15em solid #666;border-radius:.6em;background:#0e2a50;color:#fff;padding:.35em .1em;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.vt-t b{font-size:1.15em}.vt-t i{font-size:.6em;font-style:normal;opacity:.8}
+.vt-t.livre{border-color:#1fbf84;background:#0f4a3a}.vt-t.ocup{border-color:#d64545;background:#4a1a22}
+.vt-room.livre{border-color:#1fbf84}.vt-room.ocup{opacity:.75}.vt-room.hl{box-shadow:0 0 0 .25em #e8cf7a}
+.vt-ph{display:flex;gap:.3em}.vt-ph img{flex:1;min-width:0;height:5.5em;object-fit:cover;border-radius:.5em}
+.vt-rt{display:flex;justify-content:space-between;align-items:center;gap:.4em}.vt-rt b{font-size:1.2em}
+.vt-bd{font-size:.75em;font-weight:800;padding:.25em .7em;border-radius:99px;background:#444}.livre .vt-bd{background:#0f7a55}.ocup .vt-bd{background:#a53030}
+.vt-go{display:block;width:100%;border:0;border-radius:.8em;padding:.85em;background:#c9a24b;color:#0b2545;font:inherit;font-weight:800;cursor:pointer;text-align:center;text-decoration:none}
+.vt-go.off{background:#3a3f4d;color:#aaa;cursor:default}
+.vt-pm div{padding:.35em 0;border-bottom:1px solid #ffffff22;font-size:.9em}
+#vt-ov{position:absolute;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9;padding:.6em}
+.vt-md{position:relative;background:#fbf6e9;color:#1d2b3a;border:.2em solid #c9a24b;border-radius:1.1em;padding:1em;width:min(34em,100%);max-height:100%;overflow:auto}
+.vt-md h3{margin:0 0 .2em;color:#0b2545}.vt-md .s{margin:0 0 .6em;font-size:.85em;opacity:.8}
+.vt-md label{display:block;font-size:.85em;font-weight:700;margin:.5em 0 .15em}
+.vt-md input[type=text],.vt-md input[type=tel],.vt-md input[type=date],.vt-md textarea{width:100%;padding:.6em;border:1px solid #bfb596;border-radius:.6em;font:inherit;background:#fff;color:#1d2b3a}
+.vt-md .vt-ex label,.vt-md .vt-pg label{display:flex;gap:.5em;align-items:center;font-weight:600;margin:.3em 0}
+.vt-sp{display:flex;align-items:center;gap:.6em;margin:.4em 0}.vt-sp span{flex:1;font-weight:700}.vt-sp button{width:2.2em;height:2.2em;border-radius:.6em;border:1px solid #0b2545;background:#fff;font:inherit;font-weight:800;cursor:pointer}
+.vt-sum{background:#0b2545;color:#f4ecd6;border-radius:.8em;padding:.7em;margin:.7em 0}.vt-sum div{display:flex;justify-content:space-between;gap:.5em;margin:.2em 0;font-size:.9em}.vt-sum .t{font-size:1.15em;font-weight:800;color:#e8cf7a;border-top:1px solid #ffffff44;padding-top:.4em}
+.vt-x{position:absolute;right:.5em;top:.5em;border:0;background:#0b2545;color:#fff;border-radius:50%;width:2em;height:2em;cursor:pointer}
+.vt-er{color:#b42318;font-size:.85em;min-height:1.2em;margin:.3em 0}.vt-pq{display:block;width:min(15em,70%);margin:.5em auto}
+</style>
+<script id="iara-totem-vitrine">
+/* TOTEM = VITRINE E RESERVA DE APARTAMENTOS (nunca cardápio).
+   ?modo=totem  → tela cheia da recepção (vitrine + QR luxuoso)   ?view=quartos → mesma vitrine no celular do visitante.
+   Status dos quartos: o aparelho da equipe publica o mapa (iara_ht_v2) na nuvem; o visitante só lê. Reserva → lead em iara_leads (Piloto Automático) + PIX. */
+(function () {
+'use strict';
+var Q = location.search, KIOSK = /[?&](modo|pms)=totem(&|$)/.test(Q), MOBILE = !KIOSK && /[?&](view|modo)=quartos(&|$)/.test(Q), VISIT = KIOSK || MOBILE,
+  C = window.COOKCONTROL_CONFIG || {}, EMP = C.empresaId || 'iara-beach-hotel-boutique', CH = EMP + ':vitrine_quartos', DESC = 0.15, ACOMP = { ad: 150, cr: 75 },
+  /* AJUSTE AQUI os valores dos pacotes (R$) e da diária de acompanhante extra (ACOMP, por noite) */
+  PAC = [
+    { id: 'luau', ic: '🔥', n: 'Luau no Farol', d: 'Noite de luau ao pé do Farol de Itapuã', p: 180, u: 'pessoa' },
+    { id: 'pesca', ic: '🎣', n: 'Dia da Pescaria', d: 'Dia de pesca com pescadores locais', p: 250, u: 'pessoa' },
+    { id: 'trasl', ic: '🚐', n: 'Traslado e Passeios · Guia Bilíngue + Assistente Social', d: 'Transfer e roteiros com guia bilíngue e assistente social', p: 380, u: 'grupo' }];
+function lj(k) { try { var v = localStorage.getItem(k); return v === null ? null : JSON.parse(v); } catch (e) { return null; } }
+try { var po = lj('iara_vit_pacotes_v1'); if (Array.isArray(po) && po.length) PAC = po; } catch (e) {}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function $m(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function r2(v) { return Math.round(v * 100) / 100; }
+function p2(n) { return (n < 10 ? '0' : '') + n; }
+function iso(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+function addD(s, n) { var d = new Date(s + 'T12:00'); d.setDate(d.getDate() + n); return iso(d); }
+function fdt(s) { return s.split('-').reverse().join('/'); }
+function pct() { var v = +lj('iara_sinal_pct'); return v > 0 && v <= 100 ? v : 30; }
+function staff() {
+  try {
+    var r = localStorage.getItem('solbahia_sir_role');
+    return lj('solbahia_perfilAtendenteAtivo') === true || !!lj('solbahia_turnoAtivo') || ['atendente', 'gerente', 'dono', 'admin', 'caixa', 'cozinheiro', 'cozinha', 'balcao', 'motoboy'].indexOf(r) >= 0 || !!localStorage.getItem('solbahia_iara_pms_v1');
+  } catch (e) { return false; }
+}
+/* ── nuvem (Supabase): config_estabelecimento = mapa dos quartos; iara_leads = reservas ── */
+var _sb = null;
+function sb() { if (_sb) return _sb; try { if (window.supabase && window.supabase.createClient && C.supabaseUrl && C.supabaseKey) _sb = window.supabase.createClient(C.supabaseUrl, C.supabaseKey); } catch (e) {} return _sb; }
+function ler() {
+  var c = sb(); if (!c) return Promise.resolve(null);
+  return Promise.race([Promise.resolve(c.from('config_estabelecimento').select('dados').eq('chave', CH).maybeSingle()), new Promise(function (r) { setTimeout(function () { r(null); }, 6000); })])
+    .then(function (r) { return r && !r.error && r.data && r.data.dados && r.data.dados.st ? r.data.dados : null; }).catch(function () { return null; });
+}
+function gravar(d) { var c = sb(); if (!c) return; try { Promise.resolve(c.from('config_estabelecimento').upsert({ chave: CH, dados: d, atualizado_em: new Date().toISOString() }, { onConflict: 'chave' })).then(function () {}, function () {}); } catch (e) {} }
+/* aparelho da equipe publica o mapa de quartos sempre que ele muda */
+var eq = 0;
+function equipe() {
+  var u = null;
+  function ps(f) { var s = lj('iara_ht_v2'); if (!s) return; var j = JSON.stringify(s); if (!f && j === u) return; u = j; gravar({ v: 1, ts: Date.now(), st: s }); }
+  ler().then(function (d) { if (!d) ps(true); else u = JSON.stringify(lj('iara_ht_v2')); });
+  setInterval(function () { ps(false); }, 5000);
+}
+function tentar() { if (!eq && !MOBILE && staff()) { eq = 1; equipe(); } }
+setTimeout(tentar, 3000); setInterval(tentar, 8000);
+if (!VISIT) return;
+
+/* ── vitrine ── */
+var H, EST = null, F = { cat: 'all', liv: 0 }, R = null, root, main, sig = '', BL = new Map(), PH = {}, last = Date.now(), LOGO = '';
+function blob(u) {
+  if (!u || u.indexOf('data:') !== 0) return u || '';
+  if (BL.has(u)) return BL.get(u);
+  try { var p = u.split(','), m = /data:([^;]+)/.exec(p[0])[1], b = atob(p[1]), a = new Uint8Array(b.length), i; for (i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); var o = URL.createObjectURL(new Blob([a], { type: m })); BL.set(u, o); return o; } catch (e) { return u; }
+}
+function foto(t) { if (PH[t]) return PH[t]; var o = []; try { (H.fotosTipo(t) || []).slice(0, 3).forEach(function (f) { o.push({ u: blob(f.u) }); }); } catch (e) {} return (PH[t] = o); }
+function quartos() { var o = []; (H.ROOMS || []).forEach(function (r) { o.push({ n: String(r.n), t: r.t, f: r.f ? 'Andar superior' : 'Térreo' }); }); o.push({ n: 'G4', t: 'L', f: 'Garden' }); return o; }
+function sit(n) { if (!EST) return '?'; var v = EST[n]; if (v == null) return n === 'G4' ? 'livre' : '?'; return v === 'free' ? 'livre' : 'ocup'; }
+function atualizar() {
+  var loc = staff() ? lj('iara_ht_v2') : null;
+  var p = (KIOSK && loc) ? Promise.resolve(loc) : ler().then(function (d) { return d ? d.st : null; });
+  return p.then(function (st) {
+    if (!st) st = loc || lj('iara_vit_snap'); else { try { localStorage.setItem('iara_vit_snap', JSON.stringify(st)); } catch (e) {} }
+    EST = st || null; paint();
+  });
+}
+function paint() { var s = JSON.stringify([EST, F]); if (s === sig) return; sig = s; var t = main.scrollTop; main.innerHTML = body(); main.scrollTop = t; }
+function body() {
+  var Rs = quartos(), L = 0, O = 0, U = 0, T = H.TIPOS, N = H.NOMES, K = 'SLEM'.split(''), h = '';
+  Rs.forEach(function (r) { var s = sit(r.n); if (s === 'livre') L++; else if (s === 'ocup') O++; else U++; });
+  h += '<header class="vt-h"><img src="' + LOGO + '" alt=""><div><h1>Iara Beach Hotel Boutique</h1><p>Vitrine e Reserva de Apartamentos · Itapuã, Salvador</p></div></header>';
+  h += '<div class="vt-cn"><span class="g">🟢 LIVRES <b>' + L + '</b></span><span class="r">🔴 OCUPADOS <b>' + O + '</b></span>' + (U ? '<span>⚪ A CONSULTAR <b>' + U + '</b></span>' : '') + '<small>' + (EST ? 'Atualizado em tempo real' : 'Status indisponível agora: a recepção confirma a disponibilidade') + '</small></div>';
+  h += '<h2>Categorias e diárias</h2><div class="vt-cats">' + K.map(function (k) {
+    var t = T[k], f = foto(k)[0], n = Rs.filter(function (r) { return r.t === k && sit(r.n) === 'livre'; }).length;
+    return '<div class="vt-cat"><div class="vt-im" style="background-image:url(\'' + (f ? f.u : '') + '\')"></div><b>' + esc(N[k].pt) + '</b><small>' + esc(t.a) + ' · ' + esc(t.v) + '</small><div class="vt-pr"><s>' + $m(t.p) + '</s> <strong>' + $m(t.p * (1 - DESC)) + '</strong><small> / noite direto</small></div><button class="vt-b2" data-cat="' + k + '" data-sc="1">' + n + ' livre' + (n === 1 ? '' : 's') + ' · ver</button></div>';
+  }).join('') + '</div><p style="font-size:.8em;opacity:.75">Diária para 2 adultos, sem impostos. Riscado = tarifa de portais; o valor direto já tem 15% de vantagem.</p>';
+  h += '<h2>Mapa dos apartamentos</h2><div class="vt-map">' + Rs.map(function (r) { return '<button class="vt-t ' + sit(r.n) + '" data-go="' + r.n + '"><b>' + r.n + '</b><i>' + esc(N[r.t].pt.split(' ')[0]) + '</i></button>'; }).join('') + '</div>';
+  h += '<h2 id="vt-rooms">Apartamentos</h2><div class="vt-fl"><button data-liv="1" class="' + (F.liv ? 'on' : '') + '">🟢 Só livres</button><button data-cat="all" class="' + (F.cat === 'all' ? 'on' : '') + '">Todos</button>' + K.map(function (k) { return '<button data-cat="' + k + '" class="' + (F.cat === k ? 'on' : '') + '">' + esc(N[k].pt) + '</button>'; }).join('') + '</div><div class="vt-rooms">';
+  Rs.filter(function (r) { return (F.cat === 'all' || r.t === F.cat) && (!F.liv || sit(r.n) === 'livre'); })
+    .sort(function (a, b) { return (sit(a.n) === 'ocup' ? 1 : 0) - (sit(b.n) === 'ocup' ? 1 : 0); })
+    .forEach(function (r) {
+      var s = sit(r.n), t = T[r.t];
+      h += '<article class="vt-room ' + s + '" id="vt-r-' + r.n + '"><div class="vt-ph">' + foto(r.t).map(function (f) { return '<img loading="lazy" src="' + f.u + '" alt="">'; }).join('') + '</div>' +
+        '<div class="vt-rt"><b>Apto ' + r.n + '</b><span class="vt-bd">' + (s === 'livre' ? '🟢 LIVRE' : s === 'ocup' ? '🔴 OCUPADO' : '⚪ CONSULTAR') + '</span></div>' +
+        '<small>' + esc(N[r.t].pt) + ' · ' + esc(t.a) + ' · ' + esc(t.v) + ' · ' + r.f + '</small>' +
+        '<div class="vt-pr"><s>' + $m(t.p) + '</s> <strong>' + $m(t.p * (1 - DESC)) + '</strong><small> / noite</small></div>' +
+        (s === 'ocup' ? '<button class="vt-go off" disabled>🔴 Ocupado</button>' : '<button class="vt-go" data-res="' + r.n + '">🛎️ ' + (s === 'livre' ? 'QUERO RESERVAR AGORA' : 'QUERO RESERVAR · CONSULTAR') + '</button>') + '</article>';
+    });
+  h += '</div><h2>Pacotes e promoções</h2><div class="vt-cats">' + PAC.map(function (p) { return '<div class="vt-cat"><b>' + p.ic + ' ' + esc(p.n) + '</b><small>' + esc(p.d) + '</small><div class="vt-pr"><strong>' + $m(p.p) + '</strong><small> / ' + p.u + '</small></div></div>'; }).join('') + '</div>';
+  var pr = []; try { pr = H.promos() || []; } catch (e) {}
+  if (pr.length) h += '<div class="vt-pm">' + pr.map(function (p) { return '<div>🎁 <b>' + esc(p.t) + '</b> · ' + esc(p.q) + ' — ' + esc(p.d) + '</div>'; }).join('') + '</div>';
+  return h;
+}
+/* ── reserva ── */
+function calc() {
+  var t = H.TIPOS[R.t], pes = R.ad + R.cr, x = Math.max(0, R.ad - 2) * ACOMP.ad + R.cr * ACOMP.cr, dia = r2(t.p * (1 - DESC)),
+    ex = PAC.filter(function (p) { return R.ex[p.id]; }).map(function (p) { return { n: p.n, v: p.p * (p.u === 'pessoa' ? pes : 1) }; }),
+    ev = ex.reduce(function (a, e) { return a + e.v; }, 0), hosp = r2(R.no * (dia + x)), tot = r2(hosp + ev), sin = r2(tot * pct() / 100);
+  return { t: t, x: x, dia: dia, ota: r2(R.no * (t.p + x)), hosp: hosp, ex: ex, tot: tot, sin: sin, pagar: R.pg === 'total' ? tot : sin, co: addD(R.ci, R.no) };
+}
+function reservar(n) { var r = quartos().filter(function (x) { return x.n === n; })[0]; if (!r) return; R = { n: n, t: r.t, ci: iso(new Date()), no: 1, ad: 2, cr: 0, ex: {}, pg: 'sinal', nm: '', tl: '' }; modal(); }
+function ov() { var o = document.getElementById('vt-ov'); if (!o) { o = document.createElement('div'); o.id = 'vt-ov'; root.appendChild(o); o.addEventListener('click', mclick); o.addEventListener('input', minput); } return o; }
+function step(k, l, v) { return '<div class="vt-sp"><span>' + l + '</span><button data-st="' + k + ':-1">−</button><b>' + v + '</b><button data-st="' + k + ':1">+</button></div>'; }
+function sumH(c) {
+  return '<div><span>' + R.no + ' diária' + (R.no > 1 ? 's' : '') + ' (' + fdt(R.ci) + ' → ' + fdt(c.co) + ')</span><span>' + $m(c.hosp) + '</span></div>' +
+    (c.x ? '<div><span>Acompanhantes extras / noite</span><span>' + $m(c.x) + '</span></div>' : '') + c.ex.map(function (e) { return '<div><span>' + esc(e.n) + '</span><span>' + $m(e.v) + '</span></div>'; }).join('') +
+    '<div class="t"><span>Total</span><span>' + $m(c.tot) + '</span></div><div><span>Pagar agora via PIX</span><b>' + $m(c.pagar) + '</b></div>';
+}
+function modal() {
+  var c = calc(), o = ov(), t = c.t, today = iso(new Date());
+  o.innerHTML = '<div class="vt-md"><button class="vt-x" data-x="1">✕</button><h3>Apto ' + R.n + ' · ' + esc(H.NOMES[R.t].pt) + '</h3><p class="s">' + esc(t.a) + ' · ' + esc(t.v) + '</p>' +
+    '<label for="vt-ci">Check-in</label><input type="date" id="vt-ci" min="' + today + '" value="' + R.ci + '">' + step('no', 'Diárias (check-out ' + fdt(c.co) + ')', R.no) + step('ad', 'Adultos (2 incluídos)', R.ad) + step('cr', 'Crianças', R.cr) +
+    '<div class="vt-ex">' + PAC.map(function (p) { return '<label><input type="checkbox" data-ex="' + p.id + '"' + (R.ex[p.id] ? ' checked' : '') + '> ' + p.ic + ' ' + esc(p.n) + ' <b>' + $m(p.p) + '/' + p.u + '</b></label>'; }).join('') + '</div>' +
+    '<label for="vt-nm">Nome completo</label><input type="text" id="vt-nm" autocomplete="name" value="' + esc(R.nm) + '"><label for="vt-tl">WhatsApp (com DDD)</label><input type="tel" id="vt-tl" inputmode="tel" value="' + esc(R.tl) + '">' +
+    '<div class="vt-sum" id="vt-sum">' + sumH(c) + '</div><div class="vt-pg"><label><input type="radio" name="pg" value="sinal"' + (R.pg === 'sinal' ? ' checked' : '') + '> Sinal de ' + pct() + '% (' + $m(c.sin) + ')</label><label><input type="radio" name="pg" value="total"' + (R.pg === 'total' ? ' checked' : '') + '> Pagar o total (' + $m(c.tot) + ')</label></div>' +
+    '<div class="vt-er" id="vt-er"></div><button class="vt-go" data-ok="1">💳 Reservar e gerar PIX</button></div>';
+}
+function minput(e) {
+  var t = e.target; last = Date.now();
+  if (t.id === 'vt-nm') R.nm = t.value; else if (t.id === 'vt-tl') R.tl = t.value;
+  else if (t.id === 'vt-ci' && t.value) { R.ci = t.value; var s = document.getElementById('vt-sum'); if (s) s.innerHTML = sumH(calc()); }
+}
+function mclick(e) {
+  last = Date.now(); var t = e.target, ox = ov();
+  if (t === ox || t.dataset.x) { ox.remove(); R = null; return; }
+  if (t.dataset.st) { var a = t.dataset.st.split(':'), k = a[0], d = +a[1], lim = { no: [1, 30], ad: [1, 6], cr: [0, 4] }[k]; R[k] = Math.min(lim[1], Math.max(lim[0], R[k] + d)); modal(); return; }
+  if (t.dataset.ex) { R.ex[t.dataset.ex] = t.checked; modal(); return; }
+  if (t.name === 'pg') { R.pg = t.value; modal(); return; }
+  if (t.dataset.ok) enviar();
+}
+function lead(l) {
+  try { var a = lj('iara_leads_v1') || []; a.push(l); localStorage.setItem('iara_leads_v1', JSON.stringify(a)); } catch (e) {}
+  var c = sb(); if (c) try { Promise.resolve(c.from('iara_leads').insert({ id: l.id, empresa_id: EMP, payload: l })).then(function () {}, function () {}); } catch (e) {}
+}
+function leadPago(l) {
+  l.pago = true; l.pagoEm = Date.now();
+  try { var a = lj('iara_leads_v1') || []; a.forEach(function (x) { if (x.id === l.id) { x.pago = true; x.pagoEm = l.pagoEm; } }); localStorage.setItem('iara_leads_v1', JSON.stringify(a)); } catch (e) {}
+  var c = sb(); if (c) try { Promise.resolve(c.from('iara_leads').update({ payload: l }).eq('id', l.id)).then(function () {}, function () {}); } catch (e) {}
+}
+function enviar() {
+  var c = calc(), E = document.getElementById('vt-er'), tl = (R.tl || '').replace(/\D/g, '');
+  if (R.ci < iso(new Date())) return (E.textContent = 'O check-in não pode ser no passado.');
+  if ((R.nm || '').trim().length < 3) return (E.textContent = 'Informe seu nome.');
+  if (tl.length < 10) return (E.textContent = 'Informe o WhatsApp com DDD.');
+  var l = { id: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), ts: Date.now(), st: 'novo', tq: 0, nome: R.nm.trim(), tel: tl, cat: H.NOMES[R.t].pt, catk: R.t, quarto: R.n, ci: R.ci, co: c.co, noites: R.no, adultos: R.ad, criancas: R.cr, extras: c.ex.map(function (e) { return e.n; }), ota: c.ota, direto: c.tot, eco: r2(c.ota - c.hosp), sinal: c.sin, pagar: c.pagar, origem: 'totem', pago: false };
+  lead(l);
+  var md = ov().firstChild; md.innerHTML = '<h3>⏳ Gerando seu PIX…</h3><p>A recepção já foi avisada da sua reserva.</p>';
+  var oid = 'reserva-apto' + R.n + '-' + Date.now(), n = R.n;
+  fetch((C.paymentsApiBase || '') + '/payments/process', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-empresa-id': EMP }, body: JSON.stringify({ provider: 'mercadopago', serialNumber: 'totem-reservas', tipoPagamento: 'pix', orderData: { orderId: oid, numeroMesa: 'Q' + n, valorTotal: c.pagar, itensPedido: [{ nome: 'Reserva Apto ' + n + ' · ' + l.cat + ' (' + l.noites + ' diária' + (l.noites > 1 ? 's' : '') + ')', quantidade: 1, preco: c.pagar }] } }) })
+    .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d || {} }; }); }).catch(function () { return { ok: false, d: {} }; })
+    .then(function (x) { fim(l, c, x.ok && x.d.pix ? x.d.pix : null, oid); });
+}
+function fim(l, c, pix, oid) {
+  var num = String((H.txt && H.txt().whats) || '').replace(/\D/g, ''); if (num.length <= 11) num = '55' + num;
+  var msg = 'Olá! Reserva pelo Totem 🌴\nApto ' + l.quarto + ' · ' + l.cat + '\n👤 ' + l.nome + '\n📅 ' + fdt(l.ci) + ' → ' + fdt(l.co) + ' (' + l.noites + ' diária' + (l.noites > 1 ? 's' : '') + ')\n👥 ' + l.adultos + ' adulto(s)' + (l.criancas ? ' + ' + l.criancas + ' criança(s)' : '') + (l.extras.length ? '\n✨ ' + l.extras.join(', ') : '') + '\n💰 Total ' + $m(c.tot) + ' · PIX ' + $m(c.pagar) + '\nRef. ' + l.id;
+  var cp = pix && (pix.qrCode || pix.copiaECola || pix.copia_e_cola || ''), md = ov().firstChild;
+  md.innerHTML = '<h3>✅ Reserva registrada · Apto ' + esc(l.quarto) + '</h3><p class="s">A recepção foi avisada agora.</p>' +
+    (pix && pix.qrCodeBase64 ? '<img class="vt-pq" alt="PIX" src="data:image/png;base64,' + pix.qrCodeBase64 + '">' + (cp ? '<textarea readonly rows="3">' + esc(cp) + '</textarea>' : '') + '<p><b>PIX de ' + $m(c.pagar) + '</b> · <span id="vt-pg">⏳ aguardando pagamento…</span></p>' : '<p>Não foi possível gerar o PIX agora. A recepção envia a chave pelo WhatsApp.</p>') +
+    '<a class="vt-go" target="_blank" rel="noopener" href="https://wa.me/' + num + '?text=' + encodeURIComponent(msg) + '">📲 Falar com a recepção no WhatsApp</a><div style="height:.5em"></div><button class="vt-go off" data-x="1" style="cursor:pointer">Fechar</button>';
+  if (!(pix && pix.qrCodeBase64)) return;
+  R.fim = 1; var iv = setInterval(function () {
+    var cl = sb(), el = document.getElementById('vt-pg'); if (!el) { clearInterval(iv); return; } if (!cl) return;
+    Promise.resolve(cl.from('cobrancas_mesa').select('status').eq('order_id', oid).maybeSingle()).then(function (r) { if (r && r.data && r.data.status === 'pago_confirmado') { clearInterval(iv); el.textContent = '✅ PAGAMENTO CONFIRMADO!'; leadPago(l); } }, function () {});
+  }, 6000);
+}
+/* ── QR luxuoso: azul-marinho #0b2545 + moldura dourada #c9a24b + brasão esmeralda no centro ── */
+function qrLuxo(cv, link, logo) {
+  var W = 900, HH = 1060, N = '#0b2545', G = '#c9a24b', x; cv.width = W; cv.height = HH; x = cv.getContext('2d');
+  function au(a, b, c, d) { var g = x.createLinearGradient(a, b, c, d); [[0, '#f3dc8a'], [.3, G], [.6, '#9c7424'], [.85, '#e3c46a'], [1, '#a37a26']].forEach(function (s) { g.addColorStop(s[0], s[1]); }); return g; }
+  function rr(a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
+  function tx(t, y, f, fill, sp) { x.font = f; x.fillStyle = fill; x.textAlign = 'left'; var ws = t.split('').map(function (c) { return x.measureText(c).width; }), tot = ws.reduce(function (a, b) { return a + b; }, 0) + sp * (t.length - 1), p = W / 2 - tot / 2; t.split('').forEach(function (c, i) { x.fillText(c, p, y); p += ws[i] + sp; }); }
+  var bg = x.createLinearGradient(0, 0, 0, HH); bg.addColorStop(0, '#103a70'); bg.addColorStop(.5, N); bg.addColorStop(1, '#061830'); x.fillStyle = bg; rr(0, 0, W, HH, 60); x.fill();
+  x.strokeStyle = au(0, 0, W, HH); x.lineWidth = 14; rr(14, 14, W - 28, HH - 28, 48); x.stroke(); x.lineWidth = 3; x.strokeStyle = 'rgba(243,220,138,.8)'; rr(36, 36, W - 72, HH - 72, 36); x.stroke();
+  x.textBaseline = 'alphabetic'; tx('RESERVE SEU', 130, 'bold 54px Georgia,serif', au(0, 80, W, 140), 10); tx('APARTAMENTO', 205, 'bold 76px Georgia,serif', au(0, 130, W, 210), 8);
+  var q = 560, qx = (W - q) / 2, qy = 250; x.fillStyle = '#fffdf7'; rr(qx - 26, qy - 26, q + 52, q + 52, 34); x.fill(); x.strokeStyle = au(qx, qy, qx + q, qy + q); x.lineWidth = 9; x.stroke();
+  try { window.ccQrDesenhar(x, qx, qy, q, link, { logo: logo, qz: 4, nivel: 'H', escuro: N, claro: '#ffffff' }); } catch (e) { console.warn('[totem QR]', e); }
+  tx('APONTE A CÂMERA', 905, 'bold 48px Georgia,serif', au(0, 860, W, 910), 6);
+  x.font = 'italic 34px Georgia,serif'; x.fillStyle = '#f4ecd6'; x.textAlign = 'center'; x.fillText('Veja os apartamentos livres e reserve na hora', W / 2, 962);
+  tx('IARA BEACH · HOTEL BOUTIQUE', 1008, 'bold 26px Georgia,serif', G, 5);
+}
+function linkVitrine() { try { return window.IaraTotem.linkQR(); } catch (e) { var b; try { b = window.ccOrigemSite(); } catch (x) { b = location.origin; } return b + '/?view=quartos'; } }
+function boot(n) {
+  H = window.IARA_HT; if ((!H || !window.IARA_LOGO) && (n || 0) < 80 || !document.body) return setTimeout(function () { boot((n || 0) + 1); }, 120);
+  if (!H) return;
+  LOGO = blob(window.IARA_LOGO);
+  root = document.createElement('div'); root.id = 'iara-totem'; root.className = KIOSK ? 'vt-kiosk' : 'vt-mobile';
+  root.innerHTML = '<div class="vt-main" id="vt-main"></div>' + (KIOSK ? '<aside class="vt-side"><canvas id="vt-qr"></canvas><b>Toque num apartamento 🟢 ou aponte a câmera</b></aside><div id="vt-exit"></div>' : '');
+  document.body.appendChild(root); document.body.style.overflow = 'hidden'; main = document.getElementById('vt-main');
+  main.addEventListener('click', function (e) {
+    last = Date.now(); var t = e.target.closest('[data-res],[data-cat],[data-liv],[data-go]'); if (!t) return;
+    if (t.dataset.res) return reservar(t.dataset.res);
+    if (t.dataset.liv) F.liv = F.liv ? 0 : 1; else if (t.dataset.cat) { F.cat = t.dataset.cat; if (t.dataset.sc) F.liv = 1; }
+    if (t.dataset.go) { var el = document.getElementById('vt-r-' + t.dataset.go); if (el) { if (F.cat !== 'all' || F.liv) { F.cat = 'all'; F.liv = 0; paint(); el = document.getElementById('vt-r-' + t.dataset.go); } el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('hl'); setTimeout(function () { el.classList.remove('hl'); }, 2500); } return; }
+    paint(); if (t.dataset.sc) { var rm = document.getElementById('vt-rooms'); if (rm) rm.scrollIntoView({ behavior: 'smooth' }); }
+  });
+  root.addEventListener('pointerdown', function () { last = Date.now(); });
+  atualizar(); setInterval(atualizar, 8000);
+  if (KIOSK) {
+    var im = new Image(); im.onload = function () { qrLuxo(document.getElementById('vt-qr'), linkVitrine(), im); }; im.onerror = function () { qrLuxo(document.getElementById('vt-qr'), linkVitrine(), null); }; im.src = window.IARA_LOGO || '';
+    var tp = 0, t0 = 0;
+    document.getElementById('vt-exit').addEventListener('pointerdown', function () {
+      var n2 = Date.now(); if (n2 - t0 > 3000) tp = 0; t0 = n2; tp++;
+      if (tp >= 5) { tp = 0; var pin = '2026'; try { pin = (JSON.parse(localStorage.getItem('solbahia_iara_pms_v1') || localStorage.getItem('iaraPMS1')).cfg || {}).pin || pin; } catch (e) {} var r = prompt('PIN da recepção para sair do Totem'); if (r !== null && String(r) === String(pin)) { try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} location.href = location.pathname; } }
+    });
+    document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    root.addEventListener('pointerdown', function f() { root.removeEventListener('pointerdown', f); try { var p = root.requestFullscreen && root.requestFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (e) {} });
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () {}); } catch (e) {}
+    setInterval(function () { /* ociosidade: fecha formulário e volta ao topo (privacidade do próximo visitante) */
+      if (Date.now() - last > 180000) { var o = document.getElementById('vt-ov'); if (o) { o.remove(); R = null; } F = { cat: 'all', liv: 0 }; sig = ''; paint(); main.scrollTop = 0; last = Date.now(); }
+    }, 10000);
+  }
+}
+boot(0);
 })();
 </script>
 <script id="iara-pms-src" type="text/plain"><!DOCTYPE html>

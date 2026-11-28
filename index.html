@@ -8114,13 +8114,14 @@ function ccQrPrintAbrir(mesas, links, rot) {
   + '#cc-qr-print .qp-st.ok{background:#14532d}#cc-qr-print .qp-st.er{background:#7f1d1d}'
   + '#cc-qr-print .qp-vp{flex:1;overflow:auto;padding:10px 6px;text-align:center}'
   + '#cc-qr-print .qp-wr{display:inline-block;overflow:hidden;text-align:left}'
-  + '#cc-qr-print iframe{border:0;width:794px;background:#fff;transform-origin:0 0;display:block}';
+  + '#cc-qr-print iframe{border:0;width:794px;background:#fff;transform-origin:0 0;display:block}'  + '#cc-qr-print .qp-top{display:none}'  + '@media (max-width:820px){'  + '#cc-qr-print{display:block;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}'  + '#cc-qr-print .qp-top{display:flex;position:sticky;top:0;z-index:30;gap:8px;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 8px) 164px 8px 10px;background:#081a33;border-bottom:2px solid #c9a24b}'  + '#cc-qr-print .qp-top button{padding:8px 12px;font-size:13px;white-space:nowrap}'  + '#cc-qr-print .qp-pn{max-height:none;overflow:visible}'  + '#cc-qr-print .qp-lin>label{flex:1 1 140px;min-width:0}'  + '#cc-qr-print input[type=text],#cc-qr-print select,#cc-qr-print input[type=number]{min-width:0;width:100%}'  + '#cc-qr-print input[type=range]{width:100%}'  + '#cc-qr-print .qp-vp{overflow:visible;flex:none;padding:12px 6px 96px}'  + '}';
   document.head.appendChild(st);
 
   const ov = document.createElement("div");
   ov.id = "cc-qr-print";
   ov.innerHTML =
-    '<div class="qp-pn">'
+    '<div class="qp-top"><button type="button" id="qp-t-x" class="qp-x">✕ Fechar</button><button type="button" id="qp-t-v">🖼️ Ver placa</button></div>'
+  + '<div class="qp-pn">'
   + '<div class="qp-lin">'
   +   '<label>Cor<select id="qp-cor"><option value="pb">Preto e branco</option><option value="cor">Colorido</option></select></label>'
   +   '<label id="qp-c1w" style="display:none">Cor título/passos<input type="color" id="qp-c1"></label>'
@@ -8157,6 +8158,8 @@ function ccQrPrintAbrir(mesas, links, rot) {
   const $ = id => ov.querySelector("#" + id);
   const ifr = $("qp-ifr"), vp = $("qp-vp"), wr = $("qp-wr"), stEl = $("qp-st"), btnImp = $("qp-imp");
   const setSt = (t, k) => { stEl.textContent = t; stEl.className = "qp-st" + (k ? " " + k : ""); };
+  $("qp-t-x").onclick = () => $("qp-fechar").click();
+  $("qp-t-v").onclick = () => { const b = $("qp-t-v"), ver = b.dataset.m !== "v"; b.dataset.m = ver ? "v" : ""; b.textContent = ver ? "✎ Editar" : "🖼️ Ver placa"; ov.scrollTo({ top: ver ? Math.max(0, vp.offsetTop - 56) : 0, behavior: "smooth" }); };
 
   // valores iniciais
   $("qp-cor").value = cfg.cor; $("qp-c1").value = cfg.c1; $("qp-c2").value = cfg.c2;
@@ -25540,7 +25543,7 @@ function paint() { var s = JSON.stringify([EST, F]); if (s === sig) return; sig 
 function body() {
   var Rs = quartos(), L = 0, O = 0, U = 0, T = H.TIPOS, N = H.NOMES, K = 'SLEM'.split(''), h = '';
   Rs.forEach(function (r) { var s = sit(r.n); if (s === 'livre') L++; else if (s === 'ocup') O++; else U++; });
-  h += '<header class="vt-h"><img src="' + LOGO + '" alt=""><div><h1>Iara Beach Hotel Boutique</h1><p>Vitrine e Reserva de Apartamentos · Itapuã, Salvador</p></div></header>';
+  h += '<button type="button" class="vt-bk" data-sair="1">← Início</button><header class="vt-h"><img class="vt-lgo" data-sair="1" title="Voltar ao início" src="' + LOGO + '" alt="Início"><div><h1>Iara Beach Hotel Boutique</h1><p>Vitrine e Reserva de Apartamentos · Itapuã, Salvador</p></div></header>';
   h += '<div class="vt-cn"><span class="g">🟢 LIVRES <b>' + L + '</b></span><span class="r">🔴 OCUPADOS <b>' + O + '</b></span>' + (U ? '<span>⚪ A CONSULTAR <b>' + U + '</b></span>' : '') + '<small>' + (EST ? 'Atualizado em tempo real' : 'Status indisponível agora: a recepção confirma a disponibilidade') + '</small></div>';
   h += '<h2>Categorias e diárias</h2><div class="vt-cats">' + K.map(function (k) {
     var t = T[k], f = foto(k)[0], n = Rs.filter(function (r) { return r.t === k && sit(r.n) === 'livre'; }).length;
@@ -25668,7 +25671,8 @@ function boot(n) {
   root.innerHTML = '<div class="vt-main" id="vt-main"></div>' + (KIOSK ? '<aside class="vt-side"><canvas id="vt-qr"></canvas><b>Toque num apartamento 🟢 ou aponte a câmera</b></aside><div id="vt-exit"></div>' : '');
   document.body.appendChild(root); document.body.style.overflow = 'hidden'; main = document.getElementById('vt-main');
   main.addEventListener('click', function (e) {
-    last = Date.now(); var t = e.target.closest('[data-res],[data-cat],[data-liv],[data-go],[data-ph],[data-tour]'); if (!t) return;
+    last = Date.now(); var t = e.target.closest('[data-sair],[data-res],[data-cat],[data-liv],[data-go],[data-ph],[data-tour]'); if (!t) return;
+    if (t.dataset.sair) { var sb = document.getElementById('cc-sair-modo'); if (sb) sb.click(); else location.href = location.pathname; return; }
     if (t.dataset.ph) return caixa(t.dataset.ph); if (t.dataset.tour) return tour(t.dataset.tour);
     if (t.dataset.res) return reservar(t.dataset.res);
     if (t.dataset.liv) F.liv = F.liv ? 0 : 1; else if (t.dataset.cat) { F.cat = t.dataset.cat; if (t.dataset.sc) F.liv = 1; }
@@ -25696,7 +25700,7 @@ boot(0);
 })();
 </script>
 <script id="iara-pms-src" type="text/plain"><!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Iara Beach PMS</title>
 <style>
 :root{--g:#0f5a46;--g2:#0a3d30;--au:#c9a24b;--of:#faf7f0;--tx:#1d2b26}
@@ -25852,6 +25856,15 @@ details.sec>summary::-webkit-details-marker{display:none}details.sec>summary::af
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;padding:0 14px 14px}.fg label{font-size:11px;margin:0 0 2px;color:#5b6a63;font-weight:700;text-transform:uppercase;letter-spacing:.03em}.fg input,.fg select{padding:8px 9px;font-size:14px}.fg .w2c{grid-column:1/-1}
 .tr{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #eee3c8;font-size:13px}.tr img{width:64px;height:40px;object-fit:cover;border-radius:6px;background:#ddd}.tr .bt{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}.tr .bt button{border:1px solid #cfc7b0;background:#fff;border-radius:6px;padding:4px 7px;cursor:pointer}
 .cl{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid #eee3c8;font-size:13px}.cl .v{margin-left:auto;font-weight:700;white-space:nowrap}.pgo{color:#1f9d55;font-weight:700;white-space:nowrap}
+@media (max-width:767px){
+  .hb{height:calc(340px + max(env(safe-area-inset-top,0px),24px))}
+  .hb-lg{top:calc(max(env(safe-area-inset-top,0px),24px) + 18px)}
+}
+nav{padding-top:calc(8px + env(safe-area-inset-top,0px))}
+.gtabs{display:flex;gap:8px;margin:0 0 12px}
+.gtabs button{flex:1;border:2px solid var(--g);background:#fff;color:var(--g2);border-radius:12px;padding:12px 8px;font:700 14px system-ui;cursor:pointer}
+.gtabs button.on{background:var(--g);color:#fff}
+.gsv{background:#1f9d55!important;color:#fff!important}
 </style></head><body>
 <header style="padding-top:48px"><h1>Iara Beach PMS</h1><small>Iara Beach Hotel Boutique · Rua do Teatro, 126 · Itapuã · Salvador/BA</small></header>
 <nav id="nav"></nav><main id="app"></main><div id="md" onclick="if(event.target==this)cl()"><div id="mb"></div></div>
@@ -25876,9 +25889,9 @@ var tab=(function(){try{return parent.IaraPMS.tab0||'home'}catch(e){return'home'
 function go(t){tab=t;window.scrollTo(0,0);render()}
 var LBL={livre:'Livre',ocupado:'Ocupado',limpeza:'Limpeza',manut:'Manutenção'};
 function open_(r){return r.ch.filter(function(x){return!x.f})}
-function render(){sync();document.body.className=tab=='home'?'home':'';try{var _x=document.getElementById('pms-x');if(tab=='home'){if(!_x){_x=document.createElement('button');_x.id='pms-x';_x.type='button';_x.textContent='✕ Fechar';_x.style.cssText='position:fixed;right:10px;top:10px;z-index:60;border:0;border-radius:999px;padding:10px 16px;background:#c9a24b;color:#1d2b26;font:700 14px system-ui;box-shadow:0 3px 10px #0006;cursor:pointer';_x.onclick=function(){try{parent.IaraPMS.close()}catch(e){}};document.body.appendChild(_x)}}else if(_x)_x.remove()}catch(e){}
+function render(){sync();document.body.className=tab=='home'?'home':'';try{var _x=document.getElementById('pms-x');if(tab=='home'){if(!_x){_x=document.createElement('button');_x.id='pms-x';_x.type='button';_x.textContent='✕ Fechar';_x.style.cssText='position:fixed;right:10px;top:calc(max(env(safe-area-inset-top,0px),20px) + 8px);z-index:60;border:0;border-radius:999px;padding:10px 16px;background:#c9a24b;color:#1d2b26;font:700 14px system-ui;box-shadow:0 3px 10px #0006;cursor:pointer';_x.onclick=function(){try{parent.IaraPMS.close()}catch(e){}};document.body.appendChild(_x)}}else if(_x)_x.remove()}catch(e){}
 var nlead=newLeads(),nl=D.est.filter(function(x){return x.q<=x.m}).length,T=[['mapa','Mapa de Quartos'],['res','Reservas & Direto'],['du','Day Use & Experiências'],['gov','Café & Governança'],['est','Estoque Hotelaria'+(nl?' ⚠'+nl:'')],['cx','Caixa & Faturamento'],['rpc','RP, Empresas & CRM'+(nlead?' 🎯'+nlead:'')],['totem','Totem'],['cfg','Admin']];
-$('nav').style.display=(tab=='home')?'none':'flex';$('nav').innerHTML='<button class="bk" onclick="go(\'home\')">← Voltar para Capa</button><button class="bk" style="background:#fff;color:#0a3d30" onclick="try{parent.IaraPMS.close()}catch(e){}">✕ Fechar</button>'+T.map(function(t){return'<button class="'+(t[0]==tab?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
+$('nav').style.display=(tab=='home')?'none':'flex';$('nav').innerHTML='<button class="bk" onclick="go(\'home\')">← Voltar para Capa</button><button class="bk" style="background:#fff;color:#0a3d30" onclick="go(\'home\')">✕ Fechar</button>'+T.map(function(t){return'<button class="'+(t[0]==tab?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>'}).join('');
 $('app').innerHTML={home:vHome,mapa:vMapa,res:vRes,du:vDU,gov:vGov,est:vEst,cx:vCx,rpc:vRpc,rp:vRP,b2b:vB2B,crm:vCRM,totem:vTotem,cfg:vCfg,connect:vConnect,aval:vAval}[tab]();if(tab=='totem')ttLista();if(tab=='res')calc();if(tab=='cfg')cfgQr();if((tab=='crm'||tab=='rpc')&&!(tab=='rpc'&&rsub=='piloto'))evc();tick()}
 /* ---------- 1. MAPA ---------- */
 function vMapa(){var c={livre:0,ocupado:0,limpeza:0,manut:0};D.rooms.forEach(function(r){c[r.s]++});
@@ -25890,7 +25903,7 @@ function gal(t){var h=HT();if(!h)return'';var f=h.fotosTipo(t).slice(0,3);return
 function tour(t){var h=HT();if(h&&h.tour)h.tour(t)}
 function cl(){$('md').style.display='none'}
 function op(n){var r=R(n),h='<h2>Apto '+n+' · '+r.c+' <small style="font-size:13px">('+LBL[r.s]+')</small></h2>'+gal(r.t);
-if(r.s=='livre')h+='<label>Hóspede</label><input id="h"><label>WhatsApp</label><input id="t" inputmode="tel"><label>CPF (Clube Fidelidade)</label><input id="cp" inputmode="numeric"><label>Nascimento</label><input id="nc" type="date"><label>Diária (R$)</label><input id="dia" type="number" value="'+pr(r.c,15)+'"><label>Cupom de parceiro</label><select id="cu"><option value="">—</option>'+D.rp.map(function(x){return'<option>'+esc(x.cu)+'</option>'}).join('')+'</select><label>Empresa conveniada</label><select id="em" onchange="var o=this.selectedOptions[0];if(o.dataset.t)$(\'dia\').value=o.dataset.t"><option value="">—</option>'+D.b2b.map(function(x){return'<option data-t="'+x.tf+'">'+esc(x.n)+'</option>'}).join('')+'</select><label>Resgatar saldo fidelidade (R$)</label><input id="rs" type="number" value="0"><button class="btn" onclick="ci('+n+')">Check-in</button><button class="btn rd" onclick="sS('+n+',\'manut\')">Bloquear p/ manutenção</button>';
+if(r.s=='livre')h+='<label>Hóspede (titular)</label><input id="h"><label>Pessoas (PAX)</label><input id="px" type="number" min="1" value="2" inputmode="numeric"><label>WhatsApp</label><input id="t" inputmode="tel"><label>CPF (Clube Fidelidade)</label><input id="cp" inputmode="numeric"><label>Nascimento</label><input id="nc" type="date"><label>Diária (R$)</label><input id="dia" type="number" value="'+pr(r.c,15)+'"><label>Cupom de parceiro</label><select id="cu"><option value="">—</option>'+D.rp.map(function(x){return'<option>'+esc(x.cu)+'</option>'}).join('')+'</select><label>Empresa conveniada</label><select id="em" onchange="var o=this.selectedOptions[0];if(o.dataset.t)$(\'dia\').value=o.dataset.t"><option value="">—</option>'+D.b2b.map(function(x){return'<option data-t="'+x.tf+'">'+esc(x.n)+'</option>'}).join('')+'</select><label>Resgatar saldo fidelidade (R$)</label><input id="rs" type="number" value="0"><button class="btn" onclick="ci('+n+')">Check-in</button><button class="btn rd" onclick="sS('+n+',\'manut\')">Bloquear p/ manutenção</button>';
 if(r.s=='limpeza')h+='<p>Aguardando camareira.</p><button class="btn" onclick="sS('+n+',\'livre\')">Limpeza concluída → Livre</button>';
 if(r.s=='manut')h+='<button class="btn" onclick="sS('+n+',\'livre\')">Manutenção concluída → Livre</button>';
 if(r.s=='ocupado'){
@@ -25903,7 +25916,7 @@ h+='<p><button class="btn sm" onclick="cl()">Fechar</button></p>';$('mb').innerH
 function ci(n){var r=R(n),h=$('h').value.trim();if(!h)return alert('Informe o hóspede');var em=$('em').value,rs=+$('rs').value||0,cpf=$('cp').value.replace(/\D/g,'');
 if(em&&[0,5,6].indexOf(new Date().getDay())>-1&&!confirm('A tarifa acordo vale de segunda a quinta. Manter mesmo assim?'))return;
 if(rs>0){var f=D.fid[cpf];if(!f||f.s<rs)return alert('Saldo de fidelidade insuficiente'+(f?': '+money(f.s):' (informe o CPF)'));f.s=Math.round((f.s-rs)*100)/100}
-r.s='ocupado';r.h=h;r.tel=$('t').value;r.cons=[];r.cpf=cpf;r.dia=+$('dia').value||0;r.cu=$('cu').value;r.em=em;r.rs=rs;r.in=Date.now();
+r.s='ocupado';r.h=h;r.pax=Math.max(1,parseInt(($('px')||{}).value,10)||2);r.tel=$('t').value;r.cons=[];r.cpf=cpf;r.dia=+$('dia').value||0;r.cu=$('cu').value;r.em=em;r.rs=rs;r.in=Date.now();
 var g=D.hosp.filter(function(x){return cpf&&x.cpf==cpf||x.n==h})[0];if(!g){g={};D.hosp.push(g)}g.n=h;g.tel=r.tel;g.cpf=cpf;if($('nc').value)g.nasc=$('nc').value;
 save();cl();render()}
 function sS(n,s){R(n).s=s;save();cl();render()}
@@ -25937,7 +25950,7 @@ r.cons.forEach(function(x){if(!x.pg){x.pg=1;x.mt=m}});
 var tot=r.cons.reduce(function(a,x){return a+x.v},0)+(r.pagoPed||0)+pedAb,nt=c.nt,sub=Math.max(0,(r.dia||0)*nt+tot-(r.rs||0)),dt=today();
 if(r.cu)D.vend.push({cu:r.cu,v:sub,dt:dt,a:r.n});if(r.em)D.fat.push({em:r.em,v:sub,dt:dt,h:r.h,a:r.n,nt:nt});fidAdd(r.cpf,r.h,sub);
 var u=wa(r.tel,'Olá, '+r.h+'! Foi um prazer receber você no Iara Beach Hotel Boutique. Consumo lançado: '+money(tot)+'.'+(r.cpf?' Você ganhou '+money(sub*C().pts/100)+' de cashback no Clube Iara Beach para sua próxima reserva direta.':'')+' Se puder, deixe sua avaliação 5 estrelas: '+C().g);
-r.s='limpeza';r.ch.push({tp:'Governança',d:'Limpeza pós check-out',t0:Date.now(),f:0});r.h='';r.tel='';r.cons=[];r.pagoPed=0;save();cl();render();if(u.indexOf('wa.me/5')>-1)window.open(u,'_blank')}
+r.s='limpeza';r.ch.push({tp:'Governança',d:'Limpeza pós check-out',t0:Date.now(),f:0});r.h='';r.pax=0;r.tel='';r.cons=[];r.pagoPed=0;save();cl();render();if(u.indexOf('wa.me/5')>-1)window.open(u,'_blank')}
 /* ---------- 2. RESERVAS ---------- */
 function vRes(){var oc=D.rooms.filter(function(r){return r.s=='ocupado'}).length/40*100;
 return'<div class="card"><h2>Reserva direta (sem comissão de OTA)</h2><label>Categoria</label><select id="rc" onchange="calc()">'+CATS.map(function(k){return'<option>'+k+'</option>'}).join('')+'</select><label>Noites</label><input id="rn" type="number" min="1" value="2" oninput="calc()"><label>Vantagem sobre Booking/Expedia</label><select id="rd" onchange="calc()"><option>10</option><option>12</option><option selected>15</option></select><label>Hóspede (nome)</label><input id="rh" oninput="calc()"><label>WhatsApp do hóspede</label><input id="rt" inputmode="tel" oninput="calc()"><div id="cot" class="ok" style="margin-top:10px"></div><button class="btn sm au" onclick="tour(TK[$(\'rc\').selectedIndex])">🔭 Fotos e Tour 360° desta categoria</button><a id="rl" class="btn au" style="display:inline-block;text-decoration:none" target="_blank">Enviar proposta no WhatsApp</a></div>'
@@ -26000,8 +26013,8 @@ return'<div class="hd">'+(lg?'<img src="'+lg+'" alt="Iara Beach">':'')+'<div><h2
 +'</div>'}
 function trocar(){var a=+$('tq-a').value,b=+$('tq-b').value,ra=R(a),rb=R(b);if(!ra||!rb)return alert('Escolha o apartamento de origem e o de destino.');if(ra.s!='ocupado'||rb.s!='livre')return alert('A origem precisa estar ocupada e o destino livre.');
 if(!confirm('Transferir '+ra.h+' do Apto '+a+' para o Apto '+b+'? A conta vai junto.'))return;var nd=+$('tq-d').value;
-['h','tel','cpf','dia','cu','em','rs','in','cons','pagoPed','cafe','cafeD'].forEach(function(k){if(ra[k]!==undefined)rb[k]=ra[k]});if(nd>0)rb.dia=nd;rb.s='ocupado';
-ra.h='';ra.tel='';ra.cpf='';ra.cu='';ra.em='';ra.rs=0;ra.dia=0;ra.cons=[];ra.pagoPed=0;delete ra.in;ra.s='limpeza';ra.ch.push({tp:'Governança',d:'Limpeza pós troca de quarto',t0:Date.now(),f:0});
+['h','pax','tel','cpf','dia','cu','em','rs','in','cons','pagoPed','cafe','cafeD'].forEach(function(k){if(ra[k]!==undefined)rb[k]=ra[k]});if(nd>0)rb.dia=nd;rb.s='ocupado';
+ra.h='';ra.pax=0;ra.tel='';ra.cpf='';ra.cu='';ra.em='';ra.rs=0;ra.dia=0;ra.cons=[];ra.pagoPed=0;delete ra.in;ra.s='limpeza';ra.ch.push({tp:'Governança',d:'Limpeza pós troca de quarto',t0:Date.now(),f:0});
 try{parent.ccContaQuarto.transferir(a,b)}catch(e){}save();alert('Troca feita: Apto '+a+' → Apto '+b);render()}
 function P_dd(k,v){try{parent.ccAdminDados.gravar(k,v)}catch(e){}}
 function cfgQr(){try{var v=($('hq-sel')||{}).value||'',n=parent.ccHotelAreas[v]?v:(parseInt(v,10)||0),l=parent.ccHotelQuartoLink(n);$('hq-link').value=l;$('hq-sub').textContent=n?(parent.ccHotelAreas[n]?parent.ccHotelAreas[n].toUpperCase():'QUARTO '+n):'Escolha o número do quarto';parent.ccHotelQrCanvas(l,520).then(function(cv){var im=$('hq-img');if(im)im.src=cv.toDataURL('image/png')})}catch(e){}}
@@ -26040,15 +26053,18 @@ $('eo').innerHTML='Diárias ('+a+'×'+n+' Standard direto): '+money(di)+'<br>Esp
 $('el').href=wa('','Orçamento Iara Beach Hotel Boutique — '+$('et').selectedOptions[0].text+', '+g+' convidados: diárias '+money(di)+', espaço '+money(es)+', bebidas '+money(b)+', buffet '+money(f)+'. TOTAL '+money(t))}
 
 /* ---------- CAFÉ & GOVERNANÇA ---------- */
+var govSub='cafe';function govTab(s){govSub=s;render()}function govTabs(){var lm=D.rooms.filter(function(r){return r.s=='limpeza'}).length;return'<div class="gtabs"><button class="'+(govSub=='cafe'?'on':'')+'" onclick="govTab(\'cafe\')">☕ Café da Manhã</button><button class="'+(govSub=='limp'?'on':'')+'" onclick="govTab(\'limp\')">🧹 Limpeza & Arrumação'+(lm?' ('+lm+')':'')+'</button></div>'}function arrumH(){var oc=D.rooms.filter(function(r){return r.s=='ocupado'}),td=today(),ok=oc.filter(function(r){return r.arrD==td});return'<div class="card"><h2>Arrumação dos apartamentos ocupados</h2><p><b>'+ok.length+' / '+oc.length+'</b> arrumados hoje</p>'+(oc.length?oc.map(function(r){return'<div style="padding:6px 0;border-top:1px solid #eee">Apto '+r.n+' · '+esc(r.h||'—')+' · <b>'+(r.pax||'—')+' PAX</b> '+(r.arrD==td?'<button class="btn sm gsv" onclick="arrDesf('+r.n+')">✓ arrumado · desfazer</button>':'<button class="btn sm" onclick="arrOk('+r.n+')">Marcar arrumado</button>')+'</div>'}).join(''):'<p>Nenhum apartamento ocupado.</p>')+'</div>'}
 function vGov(){var td=today(),oc=D.rooms.filter(function(r){return r.s=='ocupado'}),inc=oc.filter(function(r){return r.cafe!==false}),ok=inc.filter(function(r){return r.cafeD==td});
-var h='<div class="card"><h2>Café da manhã — '+td.split('-').reverse().join('/')+'</h2><p><b>'+ok.length+' / '+inc.length+'</b> servidos · '+oc.length+' apartamentos ocupados · '+esc(C().cafe)+'</p>'+(oc.length?oc.map(function(r){return'<div style="padding:6px 0;border-top:1px solid #eee">Apto '+r.n+' · '+esc(r.h)+' <label style="display:inline;font-weight:400"><input type="checkbox" style="width:auto" '+(r.cafe!==false?'checked':'')+' onchange="cafeInc('+r.n+',this.checked)"> café incluso</label> '+(r.cafe!==false?(r.cafeD==td?'<b style="color:#1f9d55">✓ servido</b>':'<button class="btn sm" onclick="cafeOk('+r.n+')">Marcar servido</button>'):'')+'</div>'}).join(''):'<p>Nenhum apartamento ocupado.</p>')+'</div>';
+var h='<div class="card"><h2>Café da manhã — '+td.split('-').reverse().join('/')+'</h2><p><b>'+ok.length+' / '+inc.length+'</b> servidos · '+oc.length+' apartamentos ocupados · '+esc(C().cafe)+'</p>'+(oc.length?oc.map(function(r){return'<div style="padding:6px 0;border-top:1px solid #eee">Apto '+r.n+' · '+esc(r.h||'—')+' · <input type="number" min="1" inputmode="numeric" placeholder="?" value="'+(r.pax||'')+'" onchange="paxSet('+r.n+',this.value)" aria-label="PAX" style="width:58px;padding:4px 6px;display:inline-block;text-align:center"> <b>PAX</b> <label style="display:inline;font-weight:400"><input type="checkbox" style="width:auto" '+(r.cafe!==false?'checked':'')+' onchange="cafeInc('+r.n+',this.checked)"> café incluso</label> '+(r.cafe!==false?(r.cafeD==td?'<button class="btn sm gsv" onclick="cafeDesf('+r.n+')" title="Toque para desfazer">✓ servido · desfazer</button>':'<button class="btn sm" onclick="cafeOk('+r.n+')">Marcar servido</button>'):'')+'</div>'}).join(''):'<p>Nenhum apartamento ocupado.</p>')+'</div>';
+var cafeH=h;h='';
 var lm=D.rooms.filter(function(r){return r.s=='limpeza'});
 h+='<div class="card"><h2>Governança — limpeza ('+lm.length+')</h2>'+(lm.length?lm.map(function(r){return'<div style="padding:6px 0;border-top:1px solid #eee">Apto '+r.n+' · '+r.c+' '+(r.ini?'· '+esc(r.cam||'')+' <span class="tm" data-t="'+r.ini+'"></span> <button class="btn sm" onclick="limpFim('+r.n+')">Concluir</button>':'<button class="btn sm au" onclick="limpIni('+r.n+')">Iniciar (camareira)</button>')+'</div>'}).join(''):'<p>Nenhum apartamento aguardando limpeza.</p>')+'</div>';
 var ch=[];D.rooms.forEach(function(r){r.ch.forEach(function(x,k){if(!x.f)ch.push([r,k,x])})});
 var cl=ch.map(function(c){return'<div style="padding:4px 0">Apto '+c[0].n+' · '+esc(c[2].tp)+': '+esc(c[2].d)+' <span class="tm" data-t="'+c[2].t0+'"></span> <button class="btn sm" onclick="fcg('+c[0].n+','+c[1]+')">Concluir</button></div>'}).join('')||'<p>Sem chamados abertos.</p>';
 var hj=D.limp.filter(function(x){return x.dt==td});
-return h+'<div class="card"><h2>Chamados abertos ('+ch.length+')</h2>'+cl+'</div><div class="card"><b>Limpezas concluídas hoje: '+hj.length+'</b>'+hj.map(function(x){return'<div style="font-size:13px">Apto '+x.n+' · '+esc(x.cam)+' · '+x.min+' min</div>'}).join('')+'</div>'}
-function cafeInc(n,v){R(n).cafe=v;save();render()}function cafeOk(n){R(n).cafeD=today();save();render()}
+if(govSub!='limp')return govTabs()+'<div class="card" style="padding:8px 14px;margin-bottom:10px"><small>Titular e PAX aparecem em cada apartamento. Toque em “✓ servido” para desfazer.</small></div>'+cafeH;
+return govTabs()+arrumH()+h+'<div class="card"><h2>Chamados abertos ('+ch.length+')</h2>'+cl+'</div><div class="card"><b>Limpezas concluídas hoje: '+hj.length+'</b>'+hj.map(function(x){return'<div style="font-size:13px">Apto '+x.n+' · '+esc(x.cam)+' · '+x.min+' min</div>'}).join('')+'</div>'}
+function cafeInc(n,v){R(n).cafe=v;save();render()}function cafeOk(n){R(n).cafeD=today();save();render()}function paxSet(n,v){R(n).pax=Math.max(0,parseInt(v,10)||0);save();render()}function cafeDesf(n){R(n).cafeD='';save();render()}function arrOk(n){R(n).arrD=today();save();render()}function arrDesf(n){R(n).arrD='';save();render()}
 function limpIni(n){var c=prompt('Nome da camareira');if(c===null)return;var r=R(n);r.cam=c;r.ini=Date.now();save();render()}
 function limpFim(n){var r=R(n);D.limp.push({n:n,cam:r.cam||'-',min:Math.round((Date.now()-(r.ini||Date.now()))/60000),dt:today()});r.ini=0;r.cam='';r.ch.forEach(function(x){if(!x.f&&x.tp=='Governança')x.f=Date.now()});r.s='livre';save();render()}
 function fcg(n,k){var r=R(n),x=r.ch[k];x.f=Date.now();if(x.tp=='Governança'&&r.s=='limpeza'||x.tp=='Manutenção'&&r.s=='manut')r.s='livre';save();render()}
@@ -28308,7 +28324,7 @@ q('#vform').style.display='none';q('#vdone').style.display='block';q('#vdone').i
 window.open(url,'_blank')}
 function build(){
 var H=window.IARA_HT,today=iso(new Date()),el=document.createElement('div');el.id='iara-vitrine';
-el.innerHTML='<div class="vh"><h1>Iara Beach Hotel Boutique</h1><p>Rua do Teatro, 126 - Itapuã - Salvador/BA</p><span class="vb">Reserve direto · 15% de vantagem sobre os portais</span></div><main><div id="vform">'
+el.innerHTML='<div class="vh"><button type="button" class="vbk" data-sair="1">← Início</button><h1>Iara Beach Hotel Boutique</h1><p>Rua do Teatro, 126 - Itapuã - Salvador/BA</p><span class="vb">Reserve direto · 15% de vantagem sobre os portais</span></div><main><div id="vform">'
 +'<h2>1. Datas</h2><div class="row"><div><label for="vci">Check-in</label><input id="vci" type="date" min="'+today+'"></div><div><label for="vco">Check-out</label><input id="vco" type="date" min="'+today+'"></div></div><label for="vad">Hóspedes (tarifa para até 2 adultos)</label><select id="vad"><option value="2">2 adultos</option><option value="1">1 adulto</option></select>'
 +'<h2>2. Escolha sua suíte</h2>'+CATS.map(function(k){var t=H.TIPOS[k],f=H.fotosTipo(k).slice(0,3),lab={quarto:'Dormitório',banheiro:'Banheiro',terraco:'Varanda'};
 return'<label class="cat" data-c="'+k+'"><div class="pc"><span><input type="radio" name="vcat" value="'+k+'"'+(k==st.cat?' checked':'')+'><b>'+esc(H.NOMES[k].pt)+'</b> · '+esc(t.a)+'<br><span style="font-size:12px;opacity:.8">'+esc(t.v)+'</span></span><span style="text-align:right;font-size:13px"><s>'+money(t.p)+'</s> /noite<br><span class="dp">'+money(t.p*(1-DESC))+'</span> direto</span></div><div class="ph">'+f.map(function(x){return'<div><img loading="lazy" src="'+x.u+'" alt="">'+(lab[x.t]||'')+'</div>'}).join('')+'</div><button type="button" class="b2" data-tour="'+k+'">🔭 Tour 360° interativo</button></label>'}).join('')
@@ -28318,7 +28334,7 @@ return'<label class="cat" data-c="'+k+'"><div class="pc"><span><input type="radi
 +'<div class="err" id="verr"></div><button class="go" id="vgo" type="button">📲 Reservar e pagar o sinal pelo WhatsApp</button><p class="nt">Valores de referência para 2 adultos, por noite, sem impostos; o valor cheio é a tarifa de portais/OTA. A disponibilidade e a chave PIX são confirmadas pelo hotel no WhatsApp.</p></div><div id="vdone" class="ok" style="display:none"></div></main>';
 document.body.appendChild(el);document.body.style.overflow='hidden';
 el.addEventListener('change',function(e){var t=e.target;if(t.name=='vcat')st.cat=t.value;if(t.dataset&&t.dataset.e)st.ex[t.dataset.e]=t.checked;if(t.id=='vci'){var co=q('#vco');co.min=t.value||today;if(co.value&&co.value<=t.value)co.value=''}upd()});
-el.addEventListener('click',function(e){var b=e.target.closest('[data-tour]');if(b){e.preventDefault();e.stopPropagation();try{H.tour(b.dataset.tour)}catch(x){}}if(e.target.id=='vgo')send()});
+el.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-sair]')){var sb=document.getElementById('cc-sair-modo');if(sb)sb.click();else location.href=location.pathname;return}var b=e.target.closest('[data-tour]');if(b){e.preventDefault();e.stopPropagation();try{H.tour(b.dataset.tour)}catch(x){}}if(e.target.id=='vgo')send()});
 var fab=document.getElementById('iara-pms-fab');if(fab)fab.style.display='none';
 upd()}
 ready(build)})();
@@ -28342,15 +28358,13 @@ ready(build)})();
   function sair(){
     if(mode==='kiosk'||mode==='mapa'){if(!pinOk())return}
     try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
-    if(mode!=='kiosk'&&mode!=='mapa'&&history.length>1){history.back();return}
-    try{window.close()}catch(e){}
-    setTimeout(function(){location.href=location.pathname},250);
+    location.href=location.pathname;   /* Capa Principal */
   }
   function mk(){
     if(document.getElementById('cc-sair-modo')||!document.body)return;
     var b=document.createElement('button');
     b.id='cc-sair-modo';b.type='button';
-    b.textContent=(mode==='kiosk'||mode==='mapa')?'✕ Sair':'← Voltar';
+    b.textContent=(mode==='kiosk'||mode==='mapa')?'✕ Sair':'← Início';
     b.style.cssText='position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483647;border:2px solid #c9a24b;background:rgba(10,61,48,.92);color:#fff;border-radius:999px;padding:11px 18px;font:700 15px system-ui,sans-serif;box-shadow:0 4px 14px #0007;cursor:pointer;touch-action:manipulation';
     b.addEventListener('click',function(e){e.stopPropagation();sair()});
     document.body.appendChild(b);
@@ -28419,3 +28433,14 @@ ready(build)})();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+<style id="cc-safe-area-vitrine">
+/* Totem / Vitrine: cabeçalho desce abaixo da status bar e ganha botão ← Início (logo também clicável) */
+.vt-main{padding-top:calc(1em + max(env(safe-area-inset-top,0px),24px))!important}
+.vt-bk,.vbk{display:inline-flex;align-items:center;gap:.4em;border:2px solid #c9a24b;background:#0b2545;color:#e8cf7a;border-radius:999px;padding:.55em 1.1em;font:800 15px system-ui,sans-serif;cursor:pointer;touch-action:manipulation}
+.vt-bk{margin:0 0 .8em;font-size:inherit}
+.vt-lgo{cursor:pointer}
+#iara-vitrine .vh{position:relative;padding-top:calc(max(env(safe-area-inset-top,0px),20px) + 44px)}
+.vbk{position:absolute;left:12px;top:calc(max(env(safe-area-inset-top,0px),20px) + 6px)}
+body:has(.vt-bk) #cc-sair-modo,body:has(.vbk) #cc-sair-modo,#iara-totem #cc-sair-modo{display:none!important}
+</style>

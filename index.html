@@ -25988,7 +25988,12 @@ function pc(){var n=$('pn').value.trim();if(!n)return alert('Informe o nome');D.
 function cc(tp,d){var r=R($('cq').value);if(!r||r.s!='ocupado')return alert('Informe o número do seu apartamento.');r.ch.push({tp:tp,d:d+' (via totem)',t0:Date.now(),f:0});save();alert('Pedido enviado: '+d)}
 function sai(){if(prompt('PIN da recepção')==C().pin){tab='mapa';render()}}
 /* ---------- ADMIN (substitui Ajustes): seções compactas ---------- */
-function fd(l,k){var d={};try{d=parent.ccAdminDados.ler()}catch(e){}return'<div><label>'+l+'</label><input '+(k=='numMesas'?'type="number" ':'')+'value="'+esc(d[k])+'" onchange="P_dd(\''+k+'\',this.value)"></div>'}
+/* Dados do HOTEL: independentes do restaurante (config do cardápio) */
+function HD(){var c=D.cfg;if(!c.ht){var d={};try{d=parent.ccAdminDados.ler()||{}}catch(e){}
+c.ht={nome:/hotel|beach/i.test(d.nome||'')?d.nome:'Iara Beach Hotel Boutique',local:'Rua do Teatro, 126 - Praia do Farol de Itapuã - Salvador/BA',horario:'Check-in 14h · Check-out 12h · Piscina e Restaurante Red até 19h',telefone:'(71) 3014-8880'};save()}return c.ht}
+function fq(){var ns=D.rooms.map(function(r){return+r.n}).filter(function(n){return n>0}).sort(function(a,b){return a-b}),rg=[],i=0,j;while(i<ns.length){j=i;while(j+1<ns.length&&ns[j+1]==ns[j]+1)j++;rg.push(ns[i]==ns[j]?ns[i]:ns[i]+'–'+ns[j]);i=j+1}
+return'<div><label>Quantidade de quartos</label><input readonly value="'+D.rooms.length+'"></div><div><label>Numeração dos quartos</label><input readonly value="'+rg.join(' · ')+'"></div>'}
+function fd(l,k){var d=HD();return'<div><label>'+l+'</label><input '+(k=='numMesas'?'type="number" ':'')+'value="'+esc(d[k])+'" onchange="P_dd(\''+k+'\',this.value)"></div>'}
 function fi(l,k,n){return'<div><label>'+l+'</label><input '+(n?'type="number" step="any" ':'')+'value="'+esc(C()[k])+'" onchange="sc(\''+k+'\',this.value)"></div>'}
 function sec(t,b,o,w){return'<details class="sec'+(w?' w2':'')+'"'+(o?' open':'')+'><summary>'+t+'</summary><div class="fg">'+b+'</div></details>'}
 function vCfg(){var c=C(),P=parent,lg='',q=[];try{lg=P.IARA_LOGO||'';q=P.ccHotelQuartos()}catch(e){}
@@ -26001,7 +26006,7 @@ var qr='<div class="w2c" style="text-align:center"><div style="width:200px;heigh
 +'<div class="w2c"><button class="btn sm" onclick="parent.ccHotelQrImprimir(\'lista\',null,$(\'hq-lista\').value)">🖨️ Lista</button><button class="btn sm" onclick="parent.ccHotelQrImprimir(\'\',$(\'hq-sel\').value)">🖨️ QR</button><button class="btn sm" onclick="parent.ccHotelQrImprimir(\'todos\')">🖨️ Todos</button><button class="btn sm au" onclick="parent.ccHotelQrBaixar($(\'hq-sel\').value)">⬇️ Baixar</button></div>';
 var tq='<div><label>De (ocupado)</label><select id="tq-a"><option value="">—</option>'+oc.map(function(r){return'<option value="'+r.n+'">Apto '+r.n+' · '+esc(r.h)+'</option>'}).join('')+'</select></div><div><label>Para (livre)</label><select id="tq-b"><option value="">—</option>'+lv.map(function(r){return'<option value="'+r.n+'">Apto '+r.n+' · '+r.c+'</option>'}).join('')+'</select></div><div><label>Nova diária (opcional)</label><input id="tq-d" type="number" placeholder="manter"></div><div style="align-self:end"><button class="btn" onclick="trocar()">Trocar</button></div><div class="w2c" style="font-size:12px;color:#6b6250">Leva hóspede, consumo e pedidos em aberto para o novo apto; o antigo vai para limpeza.</div>';
 return'<div class="hd">'+(lg?'<img src="'+lg+'" alt="Iara Beach">':'')+'<div><h2 style="margin:0">Admin</h2><small>Configurações do hotel</small></div></div><div class="ad">'
-+sec('🏨 Dados do hotel',fd('Nome','nome')+fd('Localização','local')+fd('Horário de funcionamento','horario')+fd('Telefone / WhatsApp','telefone')+fd('Nº de mesas','numMesas'),1)
++sec('🏨 Dados do hotel',fd('Nome','nome')+fd('Localização','local')+fd('Horário de funcionamento','horario')+fd('Telefone / WhatsApp','telefone')+fq(),1)
 +sec('🏖️ Day Use',fi('Lotação máx.','max',1)+fi('Preço (R$)','dp',1)+fi('Consumação (R$)','dc',1),1)
 +sec('🛏️ Tarifas das Suítes',CATS.map(function(k){return'<div><label>'+k+' (R$)</label><input type="number" value="'+c.rates[k]+'" onchange="C().rates[\''+k+'\']=+this.value;save()"></div>'}).join(''),1)
 +sec('📶 Wi-Fi','<div class="w2c"><label>Rede e senha</label><input value="'+esc(c.wifi)+'" onchange="sc(\'wifi\',this.value)"></div>',1)
@@ -26009,14 +26014,14 @@ return'<div class="hd">'+(lg?'<img src="'+lg+'" alt="Iara Beach">':'')+'<div><h2
 +sec('🔁 Troca de Quarto',tq,1)
 +sec('🔳 QR do Quarto · Iara Beach Hotel',qr,1,1)
 +sec('⚙️ Outros ajustes',fi('WhatsApp do hotel (55DDD…)','wa')+fi('Link de avaliação Google','g')+fi('PIN do Totem / recepção','pin')+fi('Cashback fidelidade (%)','pts',1)+fi('Eventos: bebidas R$/pessoa','beb',1)+fi('Eventos: buffet R$/pessoa','buf',1)+fi('Espaço: aniversário piscina','espA',1)+fi('Espaço: mini-wedding','espW',1)+fi('Espaço: grupo','espG',1),0)
-+sec('🔗 Atalhos','<div class="w2c"><button class="btn" onclick="go(\'totem\')">🛎️ Totem (slides e QR)</button><button class="btn au" onclick="try{parent.IaraPMS.close();parent.ABOpenView(\'admin\')}catch(e){}">🍽️ Cardápio, Mesas e Pix</button><button class="btn rd" onclick="if(confirm(\'Zerar todos os dados do PMS?\')){localStorage.removeItem(K0);localStorage.removeItem(K);location.reload()}">Zerar dados</button></div>',1)
++sec('🔗 Atalhos','<div class="w2c"><button class="btn" onclick="go(\'totem\')">🛎️ Totem (slides e QR)</button><button class="btn au" onclick="try{parent.IaraPMS.close();parent.ABOpenView(\'admin\')}catch(e){}">🍽️ Admin do restaurante (cardápio e Pix)</button><button class="btn rd" onclick="if(confirm(\'Zerar todos os dados do PMS?\')){localStorage.removeItem(K0);localStorage.removeItem(K);location.reload()}">Zerar dados</button></div>',1)
 +'</div>'}
 function trocar(){var a=+$('tq-a').value,b=+$('tq-b').value,ra=R(a),rb=R(b);if(!ra||!rb)return alert('Escolha o apartamento de origem e o de destino.');if(ra.s!='ocupado'||rb.s!='livre')return alert('A origem precisa estar ocupada e o destino livre.');
 if(!confirm('Transferir '+ra.h+' do Apto '+a+' para o Apto '+b+'? A conta vai junto.'))return;var nd=+$('tq-d').value;
 ['h','pax','tel','cpf','dia','cu','em','rs','in','cons','pagoPed','cafe','cafeD'].forEach(function(k){if(ra[k]!==undefined)rb[k]=ra[k]});if(nd>0)rb.dia=nd;rb.s='ocupado';
 ra.h='';ra.pax=0;ra.tel='';ra.cpf='';ra.cu='';ra.em='';ra.rs=0;ra.dia=0;ra.cons=[];ra.pagoPed=0;delete ra.in;ra.s='limpeza';ra.ch.push({tp:'Governança',d:'Limpeza pós troca de quarto',t0:Date.now(),f:0});
 try{parent.ccContaQuarto.transferir(a,b)}catch(e){}save();alert('Troca feita: Apto '+a+' → Apto '+b);render()}
-function P_dd(k,v){try{parent.ccAdminDados.gravar(k,v)}catch(e){}}
+function P_dd(k,v){v=String(v==null?'':v).trim();if(v){HD()[k]=v;save()}}
 function cfgQr(){try{var v=($('hq-sel')||{}).value||'',n=parent.ccHotelAreas[v]?v:(parseInt(v,10)||0),l=parent.ccHotelQuartoLink(n);$('hq-link').value=l;$('hq-sub').textContent=n?(parent.ccHotelAreas[n]?parent.ccHotelAreas[n].toUpperCase():'QUARTO '+n):'Escolha o número do quarto';parent.ccHotelQrCanvas(l,520).then(function(cv){var im=$('hq-img');if(im)im.src=cv.toDataURL('image/png')})}catch(e){}}
 function hqPasso(d){var s=$('hq-sel');if(!s)return;var n=s.options.length,i=s.selectedIndex+d;if(i<1)i=n-1;if(i>=n)i=1;s.selectedIndex=i;cfgQr()}
 function sc(k,v){C()[k]=['max','dp','dc','pts','beb','buf','espA','espW','espG'].indexOf(k)>-1?+v:v;save()}
@@ -26150,7 +26155,7 @@ C9=[['mapa','🛏️','Quartos','40 apartamentos e Tour 360°',P[12],lv+' livres
 ['aval','⭐','Avaliação','Google e satisfação',IMG_AVAL,'']];
 var h='<section class="hb"><div class="hb-sl">'+S.map(function(u,i){return'<div class="hs'+(i?'':' on')+'"><img src="'+u+'" alt=""></div>'}).join('')+'</div><div class="hb-g"></div>'
 +'<div class="hb-lg">'+(lg?'<img src="'+lg+'" alt="Iara Beach">':'')+'<div><b>IARA</b><b style="font-size:15px;letter-spacing:.5em">BEACH</b><small>HOTEL BOUTIQUE</small></div></div>'
-+'<div class="hb-tx"><h1>Iara Beach Hotel Boutique</h1><em>Hospitalidade Frente-Mar • Experiência Boutique em Itapuã</em><p>Rua do Teatro, 126 - Praia do Farol de Itapuã - Salvador/BA</p><p>Check-in 14:00 • Check-out 12:00 • Reservas Diretas &amp; Day Use</p></div>'
++'<div class="hb-tx"><h1>'+esc(HD().nome)+'</h1><em>Hospitalidade Frente-Mar • Experiência Boutique em Itapuã</em><p>'+esc(HD().local)+(HD().telefone?' · '+esc(HD().telefone):'')+'</p><p>Check-in 14:00 • Check-out 12:00 • Reservas Diretas &amp; Day Use</p></div>'
 +'<div class="hb-dots">'+S.map(function(u,i){return'<i'+(i?'':' class="on"')+'></i>'}).join('')+'</div></section>'
 +'<div class="hg">'+C9.map(function(c){return'<div class="cd" role="button" tabindex="0" onclick="hgo(\''+c[0]+'\')" onkeydown="if(event.key==\'Enter\')hgo(\''+c[0]+'\')">'+(c[4]?'<img src="'+c[4]+'" alt="" loading="lazy" onerror="this.remove()">':'')+'<span class="ic">'+c[1]+'</span>'+(c[5]?'<span class="bd">'+esc(c[5])+'</span>':'')+'<div class="t"><b>'+c[2]+'</b><span>'+c[3]+'</span></div>'+'</div>'}).join('')+vBanner()+'</div>'
 ;
